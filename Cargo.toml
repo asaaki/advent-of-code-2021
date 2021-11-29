@@ -1,0 +1,30 @@
+[package]
+name = "advent-of-code-2021"
+version = "0.1.0"
+edition = "2021"
+publish = false
+# build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "aoc_macros"
+path = "src/aoc_macros.rs"
+
+[dependencies]
+# structopt = "0.3.25"
+# fncmd = "1.0.1" # nightly only, use kommand instead
+kommand = "0.6.0"
+nameless = "0.6.0"
+num_enum = "0.5.4"
+once_cell = "1.8.0"
+rayon = "1.5.1"
+regex = "1.5.4"
+serde = { version = "1.0.130", features = ["derive"] }
+serde_yaml = "0.8.21"
+shadow-rs = "0.8.1"
+unstd = "0.1.0"
+yyid = "0.6.0"
+
+[build-dependencies]
+shadow-rs = "0.8.1"
