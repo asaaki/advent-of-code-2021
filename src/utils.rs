@@ -14,7 +14,7 @@ pub(crate) type GenericResult<T> = Result<T, Box<dyn Error>>;
 // type alias to make it reaaaaalllly concise
 pub(crate) type NullResult = GenericResult<()>;
 
-pub(crate) type IoResult = std::io::Result<()>;
+// pub(crate) type IoResult = std::io::Result<()>;
 
 // for functions, which should return a result, but can never fail:
 // type OkResult<T> = Result<T, core::convert::Infallible>;
@@ -30,7 +30,7 @@ impl Display for CustomError {
 
 impl Error for CustomError {}
 
-pub(crate) type CustomErrorResult<T> = std::result::Result<T, CustomError>;
+// pub(crate) type CustomErrorResult<T> = std::result::Result<T, CustomError>;
 pub(crate) type StringResult = std::result::Result<String, CustomError>;
 
 // debug

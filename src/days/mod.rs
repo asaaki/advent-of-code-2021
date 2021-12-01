@@ -1,4 +1,4 @@
-use self::helpers::{Str, StrInput};
+use self::helpers::{Str, StrInputRef};
 use crate::utils::*;
 
 mod day00;
@@ -42,12 +42,7 @@ trait AnyDay {
     fn step2(&self) -> StringResult;
 }
 
-pub(crate) fn call_a_day<'a>(
-    day: u8,
-    step: u8,
-    input: StrInput,
-    test: Option<Str>,
-) -> StringResult {
+pub(crate) fn call_a_day(day: u8, step: u8, input: StrInputRef, test: Option<Str>) -> StringResult {
     let maybe_day: Option<Box<dyn AnyDay>> = match day {
         0 => Some(Box::new(day00::Day { input })),
         1 => Some(Box::new(day01::Day { input })),
@@ -81,7 +76,11 @@ pub(crate) fn call_a_day<'a>(
     match maybe_day {
         Some(d) => {
             let result = d.step(step)?;
-            test.map(|expected| assert_eq!(result, expected));
+
+            if let Some(expected) = test {
+                assert_eq!(result, expected);
+            }
+
             Ok(result)
         }
         None => Err(CustomError("invalid day".into())),

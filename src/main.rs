@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use days::helpers::StrInput;
 use std::{
     borrow::Cow,
@@ -46,8 +44,8 @@ fn main(
     // or without flatten; not really better:
     // let test = test.then(|| ()).and_then(|_| input.pop());
 
-    let res = days::call_a_day(day, step, input, test)?;
-    println!("Result is: {}", res);
+    let result = days::call_a_day(day, step, &input, test)?;
+    println!("Result is: {}", result);
 
     Ok(())
 }
