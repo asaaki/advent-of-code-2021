@@ -2,20 +2,37 @@ use super::AnyDay;
 use crate::utils::*;
 
 pub(crate) struct Day {
-    pub(super) test: Option<String>,
     pub(super) input: Vec<String>,
 }
 
 impl AnyDay for Day {
     fn step1(&self) -> StringResult {
-        dbg!(&self.input);
-        dbg!(&self.test);
-        Ok("[step1] not implemented yet".into())
+        let depths: &Vec<usize> = &self
+            .input
+            .iter()
+            .map(|s| s.parse::<usize>().unwrap())
+            .collect();
+
+        let result: usize = depths
+            .windows(2)
+            .fold(0, |a, t| if t[1] > t[0] { a + 1 } else { a });
+
+        Ok(format!("{}", result))
     }
 
     fn step2(&self) -> StringResult {
-        dbg!(&self.input);
-        dbg!(&self.test);
-        Ok("[step2] not implemented yet".into())
+        let depths: &Vec<usize> = &self
+            .input
+            .iter()
+            .map(|s| s.parse::<usize>().unwrap())
+            .collect();
+
+        let sums: Vec<usize> = depths.windows(3).map(|w| w.iter().sum()).collect();
+
+        let result: usize = sums
+            .windows(2)
+            .fold(0, |a, t| if t[1] > t[0] { a + 1 } else { a });
+
+        Ok(format!("{}", result))
     }
 }
