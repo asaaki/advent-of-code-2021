@@ -1,4 +1,5 @@
 use self::helpers::{Str, StrInputRef};
+use super::Part;
 use crate::utils::*;
 
 mod day00;
@@ -30,19 +31,23 @@ mod day25;
 pub(crate) mod helpers;
 
 trait AnyDay {
-    fn step(&self, i: u8) -> StringResult {
-        match i {
-            1 => self.step1(),
-            2 => self.step2(),
-            _ => Err(CustomError("invalid step".into())),
+    fn part(&self, part: Part) -> StringResult {
+        match part {
+            Part::One => self.part1(),
+            Part::Two => self.part2(),
         }
     }
 
-    fn step1(&self) -> StringResult;
-    fn step2(&self) -> StringResult;
+    fn part1(&self) -> StringResult;
+    fn part2(&self) -> StringResult;
 }
 
-pub(crate) fn call_a_day(day: u8, step: u8, input: StrInputRef, test: Option<Str>) -> StringResult {
+pub(crate) fn call_a_day(
+    day: u8,
+    part: Part,
+    input: StrInputRef,
+    test: Option<Str>,
+) -> CustomErrorResult<String> {
     let maybe_day: Option<Box<dyn AnyDay>> = match day {
         0 => Some(Box::new(day00::Day { input })),
         1 => Some(Box::new(day01::Day { input })),
@@ -75,7 +80,7 @@ pub(crate) fn call_a_day(day: u8, step: u8, input: StrInputRef, test: Option<Str
 
     match maybe_day {
         Some(d) => {
-            let result = d.step(step)?;
+            let result = d.part(part).expect("(infallible)");
 
             if let Some(expected) = test {
                 assert_eq!(result, expected);

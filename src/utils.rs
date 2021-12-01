@@ -17,8 +17,9 @@ pub(crate) type NullResult = GenericResult<()>;
 // pub(crate) type IoResult = std::io::Result<()>;
 
 // for functions, which should return a result, but can never fail:
-// type OkResult<T> = Result<T, core::convert::Infallible>;
+pub(crate) type OkResult<T> = Result<T, core::convert::Infallible>;
 
+pub(crate) type StringResult = OkResult<String>;
 #[derive(Debug, Clone)]
 pub(crate) struct CustomError(pub(crate) String);
 
@@ -30,8 +31,7 @@ impl Display for CustomError {
 
 impl Error for CustomError {}
 
-// pub(crate) type CustomErrorResult<T> = std::result::Result<T, CustomError>;
-pub(crate) type StringResult = std::result::Result<String, CustomError>;
+pub(crate) type CustomErrorResult<T> = std::result::Result<T, CustomError>;
 
 // debug
 

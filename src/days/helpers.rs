@@ -1,4 +1,6 @@
+use crate::utils::OkResult;
 use std::borrow::Cow;
+use std::fmt::Display;
 use std::str::FromStr;
 
 pub(crate) type Str<'a> = Cow<'a, str>;
@@ -13,4 +15,8 @@ pub(crate) fn s2t<T: FromStr, S: AsRef<str>>(input: &[S]) -> Vec<T> {
         .map(|s| s.as_ref().parse::<T>())
         .filter_map(Result::ok)
         .collect()
+}
+
+pub(crate) fn ok_string<T: Display>(result: T) -> OkResult<String> {
+    Ok(format!("{}", result))
 }
