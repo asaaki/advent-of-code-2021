@@ -1,11 +1,15 @@
 #![allow(dead_code)]
 
-use std::{fs::File, io::{BufRead, BufReader}};
-// use shadow_rs::shadow;
+use std::{
+    env::current_dir,
+    fs::File,
+    io::{BufRead, BufReader},
+    path::PathBuf,
+};
 use utils::*;
 
-mod utils;
 mod days;
+mod utils;
 
 #[kommand::main]
 fn main(
@@ -21,13 +25,16 @@ fn main(
         return Ok(());
     };
 
-    let maybe_test = if test { "test" } else { "" };
-
-    let input: std::path::PathBuf =
-        format!("inputs/{}.{}.{}.txt", day, step, maybe_test)
+    let input = {
+        let maybe_test = if test { "test" } else { "" };
+        let rel_input: PathBuf = format!("inputs/{}.{}.{}.txt", day, step, maybe_test)
             .parse()
             .expect("arguments to form a valid path string");
-    let input = File::open(input)?;
+        let mut input_path = current_dir()?;
+        input_path.push(rel_input);
+        File::open(input_path)?
+    };
+
     let mut input: Vec<String> = BufReader::new(input)
         .lines()
         .filter_map(Result::ok)
