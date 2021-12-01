@@ -1,8 +1,16 @@
 use self::helpers::{Str, StrInput};
 use crate::utils::*;
 
-mod day0;
-mod day1;
+mod day00;
+mod day01;
+mod day02;
+mod day03;
+mod day04;
+mod day05;
+mod day06;
+mod day07;
+mod day08;
+mod day09;
 mod day10;
 mod day11;
 mod day12;
@@ -13,20 +21,12 @@ mod day16;
 mod day17;
 mod day18;
 mod day19;
-mod day2;
 mod day20;
 mod day21;
 mod day22;
 mod day23;
 mod day24;
 mod day25;
-mod day3;
-mod day4;
-mod day5;
-mod day6;
-mod day7;
-mod day8;
-mod day9;
 pub(crate) mod helpers;
 
 trait AnyDay {
@@ -49,16 +49,16 @@ pub(crate) fn call_a_day<'a>(
     test: Option<Str>,
 ) -> StringResult {
     let maybe_day: Option<Box<dyn AnyDay>> = match day {
-        0 => Some(Box::new(day0::Day { input })),
-        1 => Some(Box::new(day1::Day { input })),
-        2 => Some(Box::new(day2::Day { input })),
-        3 => Some(Box::new(day3::Day { input })),
-        4 => Some(Box::new(day4::Day { input })),
-        5 => Some(Box::new(day5::Day { input })),
-        6 => Some(Box::new(day6::Day { input })),
-        7 => Some(Box::new(day7::Day { input })),
-        8 => Some(Box::new(day8::Day { input })),
-        9 => Some(Box::new(day9::Day { input })),
+        0 => Some(Box::new(day00::Day { input })),
+        1 => Some(Box::new(day01::Day { input })),
+        2 => Some(Box::new(day02::Day { input })),
+        3 => Some(Box::new(day03::Day { input })),
+        4 => Some(Box::new(day04::Day { input })),
+        5 => Some(Box::new(day05::Day { input })),
+        6 => Some(Box::new(day06::Day { input })),
+        7 => Some(Box::new(day07::Day { input })),
+        8 => Some(Box::new(day08::Day { input })),
+        9 => Some(Box::new(day09::Day { input })),
         10 => Some(Box::new(day10::Day { input })),
         11 => Some(Box::new(day11::Day { input })),
         12 => Some(Box::new(day12::Day { input })),
