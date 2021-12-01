@@ -1,11 +1,11 @@
-use super::AnyDay;
+use super::{helpers::StrInput, AnyDay};
 use crate::utils::*;
 
-pub(crate) struct Day {
-    pub(super) input: Vec<String>,
+pub(crate) struct Day<'a> {
+    pub(super) input: StrInput<'a>,
 }
 
-impl AnyDay for Day {
+impl AnyDay for Day<'_> {
     fn step1(&self) -> StringResult {
         dbg!(&self.input);
         Ok("[step1] not implemented yet".into())

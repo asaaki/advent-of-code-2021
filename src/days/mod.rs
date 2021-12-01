@@ -1,3 +1,4 @@
+use self::helpers::{Str, StrInput};
 use crate::utils::*;
 
 mod day0;
@@ -26,6 +27,7 @@ mod day6;
 mod day7;
 mod day8;
 mod day9;
+pub(crate) mod helpers;
 
 trait AnyDay {
     fn step(&self, i: u8) -> StringResult {
@@ -40,11 +42,11 @@ trait AnyDay {
     fn step2(&self) -> StringResult;
 }
 
-pub(crate) fn call_a_day(
+pub(crate) fn call_a_day<'a>(
     day: u8,
     step: u8,
-    input: Vec<String>,
-    test: Option<String>,
+    input: StrInput,
+    test: Option<Str>,
 ) -> StringResult {
     let maybe_day: Option<Box<dyn AnyDay>> = match day {
         0 => Some(Box::new(day0::Day { input })),

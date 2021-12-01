@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 
+use days::helpers::StrInput;
 use std::{
+    borrow::Cow,
     env::current_dir,
     fs::File,
     io::{BufRead, BufReader},
@@ -21,8 +23,7 @@ fn main(
     println!("[AoC'21] Day: {}, Step: {}, test? {}", day, step, test);
 
     if debug {
-        print_debug()?;
-        return Ok(());
+        return print_debug();
     };
 
     let input = {
@@ -35,9 +36,10 @@ fn main(
         File::open(input_path)?
     };
 
-    let mut input: Vec<String> = BufReader::new(input)
+    let mut input: StrInput = BufReader::new(input)
         .lines()
         .filter_map(Result::ok)
+        .map(Cow::from)
         .collect();
 
     let test = test.then(|| input.pop()).flatten();
