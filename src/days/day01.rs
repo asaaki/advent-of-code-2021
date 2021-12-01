@@ -17,21 +17,22 @@ aoc_macros::day_impl! {
 
         /*
         we can combine both windowings into a single one
-              stage 1    single stage
-            A w          W
-            B w w        W W
-            C w w w      W W W
-            D   w w w    W W W
+
+              stage 1    single stage     optimization
+            A w          W                X--
+            B w w        W W              ---
+            C w w w      W W W            ---
+            D   w w w    W W W            --Y
             E     w w      W W
             F       w        W
-              s-s
+              s-s                         X<Y
                 s-s
                   s-s
               stage 2
         */
         let result: usize = depths
             .windows(4)
-            .filter(|w| (w[0] + w[1] + w[2]) < (w[1] + w[2] + w[3]))
+            .filter(|w| w[0] < w[3])
             .count();
 
         ok_string(result)
