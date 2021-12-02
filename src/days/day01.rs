@@ -6,7 +6,7 @@ aoc_macros::day_impl! {
 
         let result: usize = depths
             .windows(2)
-            .filter(|t| t[0] < t[1])
+            .filter(|&t| t[0] < t[1])
             .count();
 
         ok_string(result)
@@ -32,7 +32,7 @@ aoc_macros::day_impl! {
         */
         let result: usize = depths
             .windows(4)
-            .filter(|w| w[0] < w[3])
+            .filter(|&w| w[0] < w[3])
             .count();
 
         ok_string(result)
