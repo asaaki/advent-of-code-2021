@@ -2,9 +2,9 @@ use super::helpers::ok_string;
 
 aoc_macros::day_impl! {
     fn part1(&self) -> StringResult {
-        let depths: Vec<usize> = s2t(self.input);
+        let depths: Vec<u16> = s2t(self.input);
 
-        let result: usize = depths
+        let result = depths
             .windows(2)
             .filter(|&t| t[0] < t[1])
             .count();
@@ -13,7 +13,7 @@ aoc_macros::day_impl! {
     },
 
     fn part2(&self) -> StringResult {
-        let depths: Vec<usize> = s2t(self.input);
+        let depths: Vec<u16> = s2t(self.input);
 
         /*
         we can combine both windowings into a single one
@@ -30,7 +30,7 @@ aoc_macros::day_impl! {
                   s-s
               stage 2
         */
-        let result: usize = depths
+        let result = depths
             .windows(4)
             .filter(|&w| w[0] < w[3])
             .count();
