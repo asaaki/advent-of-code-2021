@@ -1,5 +1,3 @@
-use super::helpers::ok_string;
-
 aoc_macros::day_impl! {
     fn part1(&self) -> StringResult {
         let depths: Vec<u16> = s2t(self.input);
