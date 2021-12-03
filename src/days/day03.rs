@@ -20,9 +20,7 @@ aoc_macros::day_impl! {
         let oxy = most_least_final(&bits, true);
         let co2 = most_least_final(&bits, false);
 
-        dbg!(&oxy, &co2);
         let (oxy, co2) = (bv2num(&oxy),bv2num(&co2));
-        dbg!(&oxy, &co2);
         let rating = oxy * co2;
 
         ok_string(rating)
