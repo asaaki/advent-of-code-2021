@@ -51,9 +51,9 @@ fn main(
     println!("[AoC'21] Day: {}, part: {}, test? {}", day, part, test);
 
     let input = {
-        let maybe_test = if test { "test" } else { "" };
+        let test_or_challenge = if test { "test" } else { "challenge" };
         let rel_input: PathBuf =
-            format!("inputs/{}.{}.{}.txt", day, part, maybe_test)
+            format!("inputs/{}.{}.txt", day, test_or_challenge)
                 .parse()
                 .expect("arguments to form a valid path string");
         let mut input_path = current_dir()?;
@@ -67,12 +67,14 @@ fn main(
         .map(Cow::from)
         .collect();
 
-    let test = test.then(|| input.pop()).flatten();
-    // or without flatten; not really better:
-    // let test = test.then(|| ()).and_then(|_| input.pop());
+    let tests = if test {
+        let test2 = input.pop();
+        let test1 = input.pop();
+        (test1, test2)
+    } else { (None, None) };
 
     let part = Part::try_from(part)?;
-    let result = days::call_a_day(day, part, &input, test)?;
+    let result = days::call_a_day(day, part, &input, tests)?;
     println!("Result is: {}", result);
 
     Ok(())
