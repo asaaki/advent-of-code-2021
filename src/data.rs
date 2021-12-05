@@ -1,26 +1,33 @@
+use std::marker::PhantomData;
 use std::ops::Sub;
 use std::slice::ChunksExact;
 
-pub(crate) trait MatrixLike {
+pub(crate) trait MatrixLike<'a> {
     type Item;
-
-    // fn new(chunk_size: usize) -> Self;
 
     fn len(&self) -> usize;
 
     fn fill(&mut self, input: &[Self::Item]);
 
+    fn fill_square(&mut self, value: Self::Item);
+
+    fn insert(&mut self, x: usize, y: usize, v: Self::Item);
+
+    fn get(&'a self, x: usize, y: usize) -> Option<&'a Self::Item>;
+
+    fn view(&'a self) -> &[Self::Item];
+
     fn iter_rows(&self) -> ChunksExact<Self::Item>;
     fn iter_cols(&self) -> ColumnIter<Self::Item>
     where
-        <Self as MatrixLike>::Item: std::fmt::Debug;
+        <Self as MatrixLike<'a>>::Item: std::fmt::Debug;
 
     fn transpose(&mut self);
 
-    fn transpose_into<M: MatrixLike>(&self, target: &mut M)
+    fn transpose_into<M: MatrixLike<'a>>(&self, target: &mut M)
     where
-        M: MatrixLike,
-        Vec<<M as MatrixLike>::Item>: FromIterator<Self::Item>;
+        M: MatrixLike<'a>,
+        Vec<<M as MatrixLike<'a>>::Item>: FromIterator<Self::Item>;
 
     fn chunk_size(&self) -> usize;
 
@@ -30,12 +37,13 @@ pub(crate) trait MatrixLike {
 // ==================== Matrix with Vec backend ================================
 
 #[derive(Debug, Default, Clone)]
-pub(crate) struct MatrixV<T: Default> {
+pub(crate) struct MatrixV<'a, T: Default> {
     chunk_size: usize,
     data: Vec<T>,
+    _marker: PhantomData<&'a T>,
 }
 
-impl<T: Default> MatrixV<T> {
+impl<'a, T: Default> MatrixV<'a, T> {
     pub(crate) fn new(chunk_size: usize) -> Self {
         Self {
             chunk_size,
@@ -44,7 +52,9 @@ impl<T: Default> MatrixV<T> {
     }
 }
 
-impl<T: std::fmt::Debug + Default + Clone> MatrixLike for MatrixV<T> {
+impl<'a, T: std::fmt::Debug + Default + Clone> MatrixLike<'a>
+    for MatrixV<'a, T>
+{
     type Item = T;
 
     fn len(&self) -> usize {
@@ -59,6 +69,25 @@ impl<T: std::fmt::Debug + Default + Clone> MatrixLike for MatrixV<T> {
             self.chunk_size
         );
         self.data = input.to_vec();
+    }
+
+    fn fill_square(&mut self, value: Self::Item) {
+        let size = self.chunk_size * self.chunk_size;
+        self.data = vec![value; size];
+    }
+
+    fn insert(&mut self, x: usize, y: usize, v: Self::Item) {
+        let pos = x + y * self.chunk_size;
+        self.data[pos] = v;
+    }
+
+    fn get(&'a self, x: usize, y: usize) -> Option<&'a Self::Item> {
+        let pos = x + y * self.chunk_size;
+        (&self.data).get(pos)
+    }
+
+    fn view(&'a self) -> &[Self::Item] {
+        &self.data[..]
     }
 
     fn iter_rows(&self) -> ChunksExact<Self::Item> {
@@ -78,8 +107,8 @@ impl<T: std::fmt::Debug + Default + Clone> MatrixLike for MatrixV<T> {
 
     fn transpose_into<M>(&self, target: &mut M)
     where
-        M: MatrixLike,
-        Vec<<M as MatrixLike>::Item>: FromIterator<Self::Item>,
+        M: MatrixLike<'a>,
+        Vec<<M as MatrixLike<'a>>::Item>: FromIterator<Self::Item>,
     {
         let transposed: Vec<M::Item> =
             self.iter_cols().flatten().map(ToOwned::to_owned).collect();
@@ -99,13 +128,14 @@ impl<T: std::fmt::Debug + Default + Clone> MatrixLike for MatrixV<T> {
 // ==================== Matrix with Array backend ==============================
 
 #[derive(Debug, Clone)]
-pub(crate) struct MatrixA<T: Default + Copy, const S: usize> {
+pub(crate) struct MatrixA<'a, T: Default + Copy, const S: usize> {
     chunk_size: usize,
     capacity: usize,
     data: [T; S],
+    _marker: PhantomData<&'a T>,
 }
 
-impl<T: Default + Copy, const S: usize> MatrixA<T, S> {
+impl<'a, T: Default + Copy, const S: usize> MatrixA<'a, T, S> {
     #[allow(dead_code)]
     pub(crate) fn new(chunk_size: usize) -> Self {
         let data = [T::default(); S];
@@ -120,12 +150,13 @@ impl<T: Default + Copy, const S: usize> MatrixA<T, S> {
             chunk_size,
             capacity,
             data,
+            _marker: PhantomData,
         }
     }
 }
 
-impl<T: std::fmt::Debug + Default + Copy + Clone, const S: usize> MatrixLike
-    for MatrixA<T, S>
+impl<'a, T: std::fmt::Debug + Default + Copy + Clone, const S: usize>
+    MatrixLike<'a> for MatrixA<'a, T, S>
 {
     type Item = T;
 
@@ -137,6 +168,26 @@ impl<T: std::fmt::Debug + Default + Copy + Clone, const S: usize> MatrixLike
         input.iter().enumerate().for_each(|(i, v)| {
             self.data[i] = v.clone();
         });
+    }
+
+    // Note: Since S doesn't need to be a square number of chunk_size,
+    //       the name might be a bit misleading.
+    fn fill_square(&mut self, value: Self::Item) {
+        self.data = [value; S];
+    }
+
+    fn insert(&mut self, x: usize, y: usize, v: Self::Item) {
+        let pos = x + y * self.chunk_size;
+        self.data[pos] = v;
+    }
+
+    fn get(&'a self, x: usize, y: usize) -> Option<&'a Self::Item> {
+        let pos = x + y * self.chunk_size;
+        (&self.data).get(pos)
+    }
+
+    fn view(&'a self) -> &[Self::Item] {
+        &self.data[..]
     }
 
     fn iter_rows(&self) -> ChunksExact<Self::Item> {
@@ -156,8 +207,8 @@ impl<T: std::fmt::Debug + Default + Copy + Clone, const S: usize> MatrixLike
 
     fn transpose_into<M>(&self, target: &mut M)
     where
-        M: MatrixLike,
-        Vec<<M as MatrixLike>::Item>: FromIterator<Self::Item>,
+        M: MatrixLike<'a>,
+        Vec<<M as MatrixLike<'a>>::Item>: FromIterator<Self::Item>,
     {
         let transposed: Vec<M::Item> =
             self.iter_cols().flatten().map(ToOwned::to_owned).collect();
@@ -295,12 +346,19 @@ mod test {
         let chunk_size = 3usize;
 
         let mut mv: MatrixV<usize> = MatrixV::new(chunk_size);
+        let mut mv2: MatrixV<usize> = MatrixV::new(chunk_size + 1);
         mv.fill(&sample[..]);
+        mv2.fill(&sample[..]);
         assert_eq!(mv.len(), sample.len());
+        assert_eq!(mv2.len(), sample.len());
 
-        eprintln!("mv before transpose {:?}", &mv);
+        eprintln!("mv  before transpose {:?}", &mv);
         mv.transpose();
-        eprintln!("mv after transpose  {:?}", &mv);
+        eprintln!("mv  after transpose  {:?}", &mv);
+
+        eprintln!("mv2 before transpose {:?}", &mv2);
+        mv2.transpose();
+        eprintln!("mv2 after transpose  {:?}", &mv2);
 
         const MA_SIZE: usize = 9; // cannot calculate during runtime
         let sample = vec![11usize, 12, 13, 14, 15, 16, 17, 18, 19];
@@ -317,5 +375,15 @@ mod test {
         // eprintln!("mv->ma2 {:?}", &ma2);
         // ma.transpose_into(&mut mv);
         // eprintln!("ma->mv  {:?}", &mv);
+    }
+
+    #[test]
+    fn fill_and_get() {
+        let chunk_size = 3usize;
+        let mut mv: MatrixV<usize> = MatrixV::new(chunk_size);
+        mv.fill_square(0);
+        eprintln!("mv 0-filled {:?}", &mv);
+        mv.insert(1, 1, 9);
+        eprintln!("mv inserted {:?}", &mv);
     }
 }

@@ -1,6 +1,6 @@
 type Item = u8;
 type Row = Vec<Item>;
-type MI = MatrixV<Item>;
+type MI<'a> = MatrixV<'a, Item>;
 
 aoc_macros::day_impl! {
     fn part1(&self) -> StringResult {

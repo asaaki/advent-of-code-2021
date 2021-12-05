@@ -24,8 +24,15 @@ run:
 	$(AOC_DEBUG) $(RUN_DAY) 2 -t
 	$(AOC_DEBUG) $(RUN_DAY) 2
 
+run.wsl: wsl.sync
+	cd $(STATIC_TMP_DIR) && $(MAKE) run
+
 test:
 	$(CARGO) test -- --nocapture
+
+test.wsl: wsl.sync
+	cd $(STATIC_TMP_DIR) && $(MAKE) test
+
 
 # benchmarking
 
@@ -41,10 +48,21 @@ benchmark:
 
 # we copy into a WSL-only folder ($HOME/tmp),
 # so the bad WSL2 filesystem sync doesn't block us (almost 40ms extra time)
-benchmark.wsl:
+benchmark.wsl: wsl.sync
+	cd $(STATIC_TMP_DIR) && $(MAKE) benchmark
+
+wsl.sync:
 	mkdir -p $(STATIC_TMP_DIR)
 	rsync -av $(SOURCE_DIR)/ $(STATIC_TMP_DIR)/ --exclude .git --exclude target
-	cd $(STATIC_TMP_DIR) && $(MAKE) benchmark
+
+# even better performance (esp for compilation)
+wsl.ramdisk:
+	mkdir -p $(STATIC_TMP_DIR)
+	sudo mount -t ramfs ramfs $(STATIC_TMP_DIR)
+	sudo chown $(USER):$(USER) $(STATIC_TMP_DIR)
+
+wsl.ramdisk.umount:
+	sudo umount $(STATIC_TMP_DIR)
 
 # utilities
 
