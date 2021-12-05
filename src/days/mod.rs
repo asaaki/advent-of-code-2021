@@ -30,7 +30,7 @@ mod day24;
 mod day25;
 pub(crate) mod helpers;
 
-trait AnyDay {
+pub(crate) trait AnyDay {
     fn part(&self, part: Part) -> StringResult {
         match part {
             Part::One => self.part1(),
@@ -82,9 +82,9 @@ pub(crate) fn call_a_day(
         Some(d) => {
             let result = d.part(part).expect("(infallible)");
             let test = match part {
-                    Part::One => tests.0,
-                    Part::Two => tests.1,
-                };
+                Part::One => tests.0,
+                Part::Two => tests.1,
+            };
 
             if let Some(expected) = test {
                 assert_eq!(result, expected);

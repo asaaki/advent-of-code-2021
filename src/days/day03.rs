@@ -1,86 +1,101 @@
+type Item = u8;
+type Row = Vec<Item>;
+type MI = MatrixV<Item>;
+
 aoc_macros::day_impl! {
     fn part1(&self) -> StringResult {
-        let bits: Vec<Vec<u32>> = bits(self.input);
-        let rotated = rotate(&bits);
-
-        let gamma: Vec<u32> = rotated.iter()
-        .map(|b| {
-            if b.iter().sum::<u32>() >= (b.len()/2) as u32 { 1 } else { 0 }
-        }).collect();
-
-        let epsilon: Vec<u32> = gamma.iter().map(|b| if b == &1 { 0 } else { 1 }).collect();
-
-        let (gamma, epsilon) = (bv2num(&gamma),bv2num(&epsilon));
-        let pc = gamma *epsilon;
-        ok_string(pc)
+        let result = part_1_(self.input);
+        ok_string(result)
     },
 
     fn part2(&self) -> StringResult {
-        let bits: Vec<Vec<u32>> = bits(self.input);
-        let oxy = most_least_final(&bits, true);
-        let co2 = most_least_final(&bits, false);
-
-        let (oxy, co2) = (bv2num(&oxy),bv2num(&co2));
-        let rating = oxy * co2;
-
-        ok_string(rating)
+        let result = part_2_(self.input);
+        ok_string(result)
     }
 }
 
-fn bits(input: StrInputRef) -> Vec<Vec<u32>> {
+fn input2matrix(input: StrInputRef, transposed: bool) -> MI {
+    let mut m = MatrixV::new(input[0].len());
+    m.fill(&bitstream(input));
+    if transposed {
+        m.transpose();
+    }
+    m
+}
+
+fn part_1_(input: StrInputRef) -> usize {
+    let input = input2matrix(input, true);
+
+    let gamma: Row = input
+        .iter_rows()
+        .map(|b| {
+            // TODOs: Vec<T>: .sum_usize(), .sum_non_zeros{_usize}(), .count_non_zeros{_usize}()
+            if b.iter().map(|i| *i as usize).sum::<usize>() >= (b.len() / 2) {
+                1
+            } else {
+                0
+            }
+        })
+        .collect();
+
+    let epsilon: Row = gamma.invert(None);
+
+    let (gamma, epsilon) = (bits2num(&gamma[..]), bits2num(&epsilon[..]));
+    gamma * epsilon
+}
+
+fn part_2_(input: StrInputRef) -> usize {
+    let input = input2matrix(input, false);
+    let oxy = most_least_final(&input, true);
+    let co2 = most_least_final(&input, false);
+    oxy * co2
+}
+
+fn bitstream(input: StrInputRef) -> Row {
     input
         .iter()
-        .map(|line| {
-            let b: Vec<u32> = line
-                .chars()
-                .map(|c| c.to_digit(2).expect("bin digit") as u32)
-                .collect();
-            b
+        .flat_map(|line| {
+            line.chars()
+                .map(|c| c.to_digit(2).expect("bin digit") as Item)
         })
         .collect()
 }
 
-fn rotate(bits: &Vec<Vec<u32>>) -> Vec<Vec<u32>> {
-    bits.iter().enumerate().fold(
-        vec![vec![0; bits.len()]; bits[0].len()],
-        |mut a, (i, num)| {
-            for (ni, b) in num.iter().enumerate() {
-                a[ni][i] = *b;
-            }
-            a
-        },
-    )
+// [ ] init step: use hard-coded data type everywhere
+// [*] middle step: make data type configurable
+// [ ] final step: make data type generic
+fn bits2num(bv: &[Item]) -> usize {
+    bv.iter().enumerate().fold(0, |a, (i, b)| {
+        a + (*b) as usize * 2usize.pow(bv.len() as u32 - 1 - i as u32)
+    })
 }
 
-fn bv2num(bv: &Vec<u32>) -> u32 {
-    bv.iter()
-        .enumerate()
-        .fold(0, |a, (i, b)| a + b * 2u32.pow((bv.len() - 1 - i) as u32))
-}
-
-fn most_least_final(bits: &Vec<Vec<u32>>, most: bool) -> Vec<u32> {
-    let mut oxys = bits.clone();
-    for b in 0..oxys[0].len() {
-        let r = rotate(&oxys);
-        let r = &r[b];
-
-        let (o, z): (Vec<u32>, Vec<u32>) = r.iter().partition(|&i| i == &1);
+fn most_least_final(bits: &MI, most: bool) -> usize {
+    let mut data = bits.clone();
+    let steps = 0..data.chunk_size();
+    for step in steps {
+        let column = data.iter_cols().nth(step).unwrap();
+        let (o, z): (Row, Row) = column.into_iter().partition(|&i| i == &1);
         let (oc, zc) = (o.iter().count(), z.iter().count());
         let (m, l) = if oc >= zc { (1, 0) } else { (0, 1) };
 
-        let new = oxys
-            .iter()
+        let new: Row = data
+            .iter_rows()
             .filter(|o| {
                 let check = if most { m } else { l };
-                o[b] == check
+                o[step] == check
             })
-            .map(Clone::clone)
+            .flatten()
+            .map(ToOwned::to_owned)
             .collect();
-        oxys = new;
-        if oxys.len() == 1 {
+        let mut new_data = MatrixV::new(data.chunk_size());
+        new_data.fill(&new);
+        data = new_data;
+
+        if data.len() == data.chunk_size() {
             break;
         }
     }
-    let result = &oxys[0];
-    result.clone()
+    let result = &data.iter_rows().next().unwrap();
+    bits2num(result)
 }

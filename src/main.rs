@@ -9,6 +9,7 @@ use std::{
 };
 use utils::*;
 
+mod data;
 mod days;
 mod utils;
 
@@ -71,7 +72,9 @@ fn main(
         let test2 = input.pop();
         let test1 = input.pop();
         (test1, test2)
-    } else { (None, None) };
+    } else {
+        (None, None)
+    };
 
     let part = Part::try_from(part)?;
     let result = days::call_a_day(day, part, &input, tests)?;

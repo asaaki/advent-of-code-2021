@@ -1,6 +1,6 @@
 # -msvc not working due to some dependencies
 CARGO = cargo +stable-gnu
-RUN_DAY = $(shell date +"%e")
+RUN_DAY ?= $(shell date +"%e")
 BM_DAYS=$(shell seq -s ',' 0 $(RUN_DAY))
 SOURCE_DIR = $(PWD)
 STATIC_TMP_DIR = ~/tmp/aoc_build
@@ -23,6 +23,9 @@ run:
 	$(AOC_DEBUG) $(RUN_DAY) 1
 	$(AOC_DEBUG) $(RUN_DAY) 2 -t
 	$(AOC_DEBUG) $(RUN_DAY) 2
+
+test:
+	$(CARGO) test -- --nocapture
 
 # benchmarking
 
