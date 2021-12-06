@@ -122,8 +122,8 @@ impl Board {
     }
 
     fn fill(&mut self, input: &Vec<Vec<usize>>) {
-        input.iter().flatten().enumerate().for_each(|(i, v)| {
-            self.numbers[i] = v.clone();
+        input.iter().flatten().enumerate().for_each(|(i, &v)| {
+            self.numbers[i] = v;
         });
     }
 
