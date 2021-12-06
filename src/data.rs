@@ -166,7 +166,7 @@ impl<'a, T: std::fmt::Debug + Default + Copy + Clone, const S: usize>
 
     fn fill(&mut self, input: &[Self::Item]) {
         input.iter().enumerate().for_each(|(i, v)| {
-            self.data[i] = v.clone();
+            self.data[i] = *v;
         });
     }
 
@@ -284,11 +284,10 @@ where
     where
         T: std::fmt::Debug,
     {
-        if self.slice.len() < self.chunk_size {
-            None
-        } else if self.slice.len() < self.col_size {
-            None
-        } else if self.offset >= self.max_offset {
+        if self.slice.len() < self.chunk_size
+            || self.slice.len() < self.col_size
+            || self.offset >= self.max_offset
+        {
             None
         } else {
             // NOTE: this is very unschön, but we cannot build slices of non-contiguous memory (addresses)

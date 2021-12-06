@@ -81,20 +81,17 @@ fn run_draws_until_last_win(
         }
 
         for (i, (board, skip)) in state.iter_mut().enumerate() {
-            if skip == &false {
-                if board.check_win() {
-                    *skip = true;
-                    last_winner.replace((draw, i));
-                }
+            if skip == &false && board.check_win() {
+                *skip = true;
+                last_winner.replace((draw, i));
             }
         }
     }
 
-    let v = last_winner
+    last_winner
         .map(|(draw, idx)| boards.get(idx).map(|b| b.unmark_sum() * draw))
         .flatten()
-        .expect("value to be a number");
-    v
+        .expect("value to be a number")
 }
 
 const fn board_size(dim: usize) -> usize {
@@ -121,7 +118,7 @@ impl Board {
         }
     }
 
-    fn fill(&mut self, input: &Vec<Vec<usize>>) {
+    fn fill(&mut self, input: &[Vec<usize>]) {
         input.iter().flatten().enumerate().for_each(|(i, &v)| {
             self.numbers[i] = v;
         });

@@ -76,7 +76,7 @@ fn most_least_final(bits: &MI, most: bool) -> usize {
     for step in steps {
         let column = data.iter_cols().nth(step).unwrap();
         let (o, z): (Row, Row) = column.into_iter().partition(|&i| i == &1);
-        let (oc, zc) = (o.iter().count(), z.iter().count());
+        let (oc, zc) = (o.len(), z.len());
         let (m, l) = if oc >= zc { (1, 0) } else { (0, 1) };
 
         let new: Row = data

@@ -54,33 +54,31 @@ fn endpoints2lines(start: Coord, end: Coord, diagonals: bool) -> Vec<Coord> {
     } else if start.1 == end.1 {
         let ((x1, x2), _rev) = order((start.0, end.0));
         (x1..=x2).map(|x| (x, start.1)).collect()
-    } else {
-        if diagonals {
-            /*
-                simple growing: 0,0->1,1 | x=(0..1), y=(0..1)
-                    decreasing: 0,1->1,0 | x=(0..1), Y=(1..0)
-                                1,0->0,1 | X=(1..0), y=(0..1)
-                                1,1->0,0 | X=(1..0), Y=(1..0)
+    } else if diagonals {
+        /*
+            simple growing: 0,0->1,1 | x=(0..1), y=(0..1)
+                decreasing: 0,1->1,0 | x=(0..1), Y=(1..0)
+                            1,0->0,1 | X=(1..0), y=(0..1)
+                            1,1->0,0 | X=(1..0), Y=(1..0)
 
-                x+,y- -> rx.zip(ry.rev())
-                x-,y+ -> rx.rev().zip(ry)
-                x-,y- -> rx.rev().zip(ry.rev())
-            */
-            let ((x1, x2), xrev) = order((start.0, end.0));
-            let ((y1, y2), yrev) = order((start.1, end.1));
+            x+,y- -> rx.zip(ry.rev())
+            x-,y+ -> rx.rev().zip(ry)
+            x-,y- -> rx.rev().zip(ry.rev())
+        */
+        let ((x1, x2), xrev) = order((start.0, end.0));
+        let ((y1, y2), yrev) = order((start.1, end.1));
 
-            let rx = x1..=x2;
-            let ry = y1..=y2;
+        let rx = x1..=x2;
+        let ry = y1..=y2;
 
-            match (xrev, yrev) {
-                (false, false) => rx.zip(ry).collect(),
-                (false, true) => rx.zip(ry.rev()).collect(),
-                (true, false) => rx.rev().zip(ry).collect(),
-                (true, true) => rx.rev().zip(ry.rev()).collect(),
-            }
-        } else {
-            vec![]
+        match (xrev, yrev) {
+            (false, false) => rx.zip(ry).collect(),
+            (false, true) => rx.zip(ry.rev()).collect(),
+            (true, false) => rx.rev().zip(ry).collect(),
+            (true, true) => rx.rev().zip(ry.rev()).collect(),
         }
+    } else {
+        vec![]
     }
 }
 
