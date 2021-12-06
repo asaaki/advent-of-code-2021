@@ -3,39 +3,17 @@ const DAYS_PART2: usize = 256;
 
 aoc_macros::day_impl! {
     fn part1(&self) -> StringResult {
-        let result = part_1_(self.input, DAYS_PART1);
+        let result = compute(self.input, DAYS_PART1);
         ok_string(result)
     },
 
     fn part2(&self) -> StringResult {
-        let result = part_2_(self.input, DAYS_PART2);
+        let result = compute(self.input, DAYS_PART2);
         ok_string(result)
     }
 }
 
-fn part_1_(input: StrInputRef, days: usize) -> usize {
-    let input_iter = input[0].split(',').map(|s| s.parse::<u8>().unwrap());
-    let mut population = Vec::with_capacity(1_000_000_000);
-    population.extend(input_iter);
-
-    for _ in 0..days {
-        let mut new_fishes = 0;
-        for fish in population.iter_mut() {
-            match fish.checked_sub(1) {
-                Some(f) => *fish = f,
-                None => {
-                    *fish = 6;
-                    new_fishes += 1;
-                }
-            }
-        }
-        for _ in 0..new_fishes { population.push(8); }
-    }
-
-    population.len()
-}
-
-fn part_2_(input: StrInputRef, days: usize) -> usize {
+fn compute(input: StrInputRef, days: usize) -> usize {
     let input_iter = input[0].split(',').map(|s| s.parse::<u8>().unwrap());
     let mut population = Vec::with_capacity(1_000_000_000);
     population.extend(input_iter);
