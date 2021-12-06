@@ -293,12 +293,11 @@ where
         } else {
             // NOTE: this is very unschön, but we cannot build slices of non-contiguous memory (addresses)
             let mut result = Vec::with_capacity(self.col_size);
-            for item in
-                self.slice.iter().skip(self.offset).step_by(self.chunk_size)
-            {
-                // eprintln!("max:{} cz:{}, off:{}, item:{:?}", self.max_offset, self.col_size, self.offset, &item);
-                result.push(item);
-            }
+            self.slice
+                .iter()
+                .skip(self.offset)
+                .step_by(self.chunk_size)
+                .for_each(|item| result.push(item));
 
             self.offset += 1;
             Some(result)
