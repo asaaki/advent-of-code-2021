@@ -56,8 +56,6 @@ prof.wsl: wsl.sync
 	(cargo flamegraph --verbose -c "record -F max --call-graph dwarf -g" --bin advent-of-code-2021 -o day-5-2.svg -- 5 2 || true) && \
 	ls -ahlF .
 	cp $(STATIC_TMP_DIR)/day-5-2.svg tmp/
-# perf record -F max --call-graph dwarf -g target/release/advent-of-code-2021 --profiling 5 2
-# cargo flamegraph -F 100000 --bin advent-of-code-2021 -- --profiling 5 2
 
 wsl.sync:
 	mkdir -p $(STATIC_TMP_DIR)
