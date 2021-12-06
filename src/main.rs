@@ -77,7 +77,7 @@ fn main(
     };
 
     let part = Part::try_from(part)?;
-    let result = days::call_a_day(day, part, &input, tests)?;
+    let result = days::call_a_day(day, part, &input, &tests)?;
     println!("Result is: {}", result);
 
     Ok(())

@@ -46,7 +46,7 @@ pub(crate) fn call_a_day(
     day: u8,
     part: Part,
     input: StrInputRef,
-    tests: (Option<Str>, Option<Str>),
+    tests: &(Option<Str>, Option<Str>),
 ) -> CustomErrorResult<String> {
     let maybe_day: Option<Box<dyn AnyDay>> = match day {
         0 => Some(Box::new(day00::Day { input })),
@@ -82,12 +82,12 @@ pub(crate) fn call_a_day(
         Some(d) => {
             let result = d.part(part).expect("(infallible)");
             let test = match part {
-                Part::One => tests.0,
-                Part::Two => tests.1,
+                Part::One => tests.0.as_ref(),
+                Part::Two => tests.1.as_ref(),
             };
 
             if let Some(expected) = test {
-                assert_eq!(result, expected);
+                assert_eq!(&result, expected);
             }
 
             Ok(result)

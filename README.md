@@ -26,6 +26,14 @@ My solutions for each task.
 
 ## Benchmarks
 
+```toml
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+debug = true
+```
+
 ```sh
 # simplified version (win10; git bash)
 hyperfine \
@@ -36,43 +44,43 @@ hyperfine \
   "tmp\aoc.win.exe {days} {parts}"
 ```
 
-### Windows 10 (within Git Bash)
+### Windows 10 (within Git Bash); toolchain: stable-msvc
 
 `make benchmark`
 
 | Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
 |:---|---:|---:|---:|---:|
-| `tmp\aoc.win.exe 0 1` | 8.2 ± 0.5 | 7.4 | 9.5 | 1.01 ± 0.08 |
-| `tmp\aoc.win.exe 0 2` | 8.1 ± 0.5 | 7.3 | 9.8 | 1.00 |
-| `tmp\aoc.win.exe 1 1` | 8.5 ± 0.4 | 7.8 | 9.8 | 1.04 ± 0.08 |
-| `tmp\aoc.win.exe 1 2` | 8.5 ± 0.4 | 7.7 | 9.1 | 1.04 ± 0.08 |
-| `tmp\aoc.win.exe 2 1` | 8.5 ± 0.4 | 7.8 | 9.4 | 1.04 ± 0.08 |
-| `tmp\aoc.win.exe 2 2` | 8.4 ± 0.4 | 7.6 | 9.4 | 1.03 ± 0.08 |
-| `tmp\aoc.win.exe 3 1` | 8.4 ± 0.3 | 7.8 | 9.2 | 1.03 ± 0.07 |
-| `tmp\aoc.win.exe 3 2` | 8.6 ± 0.5 | 7.8 | 10.2 | 1.06 ± 0.09 |
-| `tmp\aoc.win.exe 4 1` | 8.6 ± 0.4 | 7.8 | 9.8 | 1.05 ± 0.08 |
-| `tmp\aoc.win.exe 4 2` | 8.8 ± 0.4 | 7.8 | 9.8 | 1.08 ± 0.08 |
-| `tmp\aoc.win.exe 5 1` | 13.8 ± 0.6 | 12.7 | 15.0 | 1.70 ± 0.12 |
-| `tmp\aoc.win.exe 5 2` | 15.4 ± 0.6 | 14.1 | 16.4 | 1.89 ± 0.13 |
+| `tmp\aoc.win.exe 0 1` | 6.7 ± 0.3 | 6.2 | 7.5 | 1.01 ± 0.08 |
+| `tmp\aoc.win.exe 0 2` | 6.6 ± 0.4 | 5.9 | 7.9 | 1.00 |
+| `tmp\aoc.win.exe 1 1` | 6.9 ± 0.4 | 6.2 | 8.0 | 1.05 ± 0.09 |
+| `tmp\aoc.win.exe 1 2` | 6.9 ± 0.3 | 6.3 | 7.7 | 1.04 ± 0.08 |
+| `tmp\aoc.win.exe 2 1` | 6.9 ± 0.4 | 6.1 | 7.9 | 1.04 ± 0.09 |
+| `tmp\aoc.win.exe 2 2` | 7.0 ± 0.4 | 6.2 | 7.9 | 1.06 ± 0.09 |
+| `tmp\aoc.win.exe 3 1` | 7.0 ± 0.4 | 6.2 | 8.8 | 1.06 ± 0.09 |
+| `tmp\aoc.win.exe 3 2` | 7.1 ± 0.4 | 6.3 | 8.0 | 1.07 ± 0.09 |
+| `tmp\aoc.win.exe 4 1` | 7.0 ± 0.4 | 6.4 | 8.3 | 1.07 ± 0.09 |
+| `tmp\aoc.win.exe 4 2` | 7.2 ± 0.3 | 6.4 | 8.0 | 1.08 ± 0.08 |
+| `tmp\aoc.win.exe 5 1` | 11.5 ± 0.5 | 10.8 | 13.0 | 1.74 ± 0.13 |
+| `tmp\aoc.win.exe 5 2` | 12.8 ± 0.6 | 11.8 | 15.1 | 1.94 ± 0.15 |
 
-### Linux (WSL2; Ubuntu 20.04.3 LTS)
+### Linux (WSL2; Ubuntu 20.04.3 LTS); toolchain: stable
 
 `make benchmark.wsl`
 
 | Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
 |:---|---:|---:|---:|---:|
 | `tmp/aoc.linux 0 1` | 0.6 ± 0.0 | 0.5 | 0.7 | 1.00 |
-| `tmp/aoc.linux 0 2` | 0.7 ± 0.2 | 0.5 | 1.3 | 1.15 ± 0.29 |
-| `tmp/aoc.linux 1 1` | 0.8 ± 0.1 | 0.7 | 1.0 | 1.35 ± 0.16 |
-| `tmp/aoc.linux 1 2` | 0.8 ± 0.1 | 0.7 | 1.0 | 1.34 ± 0.15 |
-| `tmp/aoc.linux 2 1` | 0.8 ± 0.1 | 0.7 | 1.1 | 1.41 ± 0.18 |
-| `tmp/aoc.linux 2 2` | 0.8 ± 0.1 | 0.7 | 0.9 | 1.35 ± 0.12 |
-| `tmp/aoc.linux 3 1` | 0.9 ± 0.1 | 0.7 | 1.3 | 1.59 ± 0.27 |
-| `tmp/aoc.linux 3 2` | 0.8 ± 0.1 | 0.7 | 1.0 | 1.40 ± 0.14 |
-| `tmp/aoc.linux 4 1` | 0.8 ± 0.1 | 0.8 | 1.2 | 1.46 ± 0.15 |
-| `tmp/aoc.linux 4 2` | 1.0 ± 0.1 | 0.9 | 1.2 | 1.74 ± 0.14 |
-| `tmp/aoc.linux 5 1` | 3.1 ± 0.3 | 2.5 | 3.9 | 5.39 ± 0.64 |
-| `tmp/aoc.linux 5 2` | 4.1 ± 0.3 | 3.6 | 5.0 | 7.03 ± 0.71 |
+| `tmp/aoc.linux 0 2` | 0.6 ± 0.1 | 0.5 | 1.0 | 1.06 ± 0.20 |
+| `tmp/aoc.linux 1 1` | 0.8 ± 0.1 | 0.6 | 1.1 | 1.38 ± 0.23 |
+| `tmp/aoc.linux 1 2` | 0.7 ± 0.1 | 0.6 | 1.0 | 1.34 ± 0.17 |
+| `tmp/aoc.linux 2 1` | 0.7 ± 0.1 | 0.7 | 1.0 | 1.30 ± 0.16 |
+| `tmp/aoc.linux 2 2` | 0.8 ± 0.1 | 0.7 | 1.0 | 1.35 ± 0.17 |
+| `tmp/aoc.linux 3 1` | 0.7 ± 0.1 | 0.7 | 1.0 | 1.31 ± 0.17 |
+| `tmp/aoc.linux 3 2` | 0.8 ± 0.1 | 0.7 | 1.1 | 1.40 ± 0.20 |
+| `tmp/aoc.linux 4 1` | 0.8 ± 0.1 | 0.7 | 1.2 | 1.42 ± 0.22 |
+| `tmp/aoc.linux 4 2` | 0.9 ± 0.1 | 0.8 | 1.3 | 1.68 ± 0.20 |
+| `tmp/aoc.linux 5 1` | 2.9 ± 0.3 | 2.5 | 3.6 | 5.29 ± 0.66 |
+| `tmp/aoc.linux 5 2` | 3.8 ± 0.4 | 3.3 | 5.0 | 6.86 ± 0.89 |
 
 <!-- links -->
 

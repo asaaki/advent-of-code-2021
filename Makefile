@@ -1,5 +1,4 @@
-# -msvc not working due to some dependencies
-CARGO = cargo +stable-gnu
+CARGO = cargo
 RUN_DAY ?= $(shell date +"%e")
 BM_DAYS=$(shell seq -s ',' 0 $(RUN_DAY))
 SOURCE_DIR = $(PWD)
@@ -50,6 +49,15 @@ benchmark:
 # so the bad WSL2 filesystem sync doesn't block us (almost 40ms extra time)
 benchmark.wsl: wsl.sync
 	cd $(STATIC_TMP_DIR) && $(MAKE) benchmark
+
+prof.wsl: wsl.sync
+	cd $(STATIC_TMP_DIR) && \
+	$(CARGO) build --release && \
+	(cargo flamegraph --verbose -c "record -F max --call-graph dwarf -g" --bin advent-of-code-2021 -o day-5-2.svg -- 5 2 || true) && \
+	ls -ahlF .
+	cp $(STATIC_TMP_DIR)/day-5-2.svg tmp/
+# perf record -F max --call-graph dwarf -g target/release/advent-of-code-2021 --profiling 5 2
+# cargo flamegraph -F 100000 --bin advent-of-code-2021 -- --profiling 5 2
 
 wsl.sync:
 	mkdir -p $(STATIC_TMP_DIR)
