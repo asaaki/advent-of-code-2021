@@ -3,6 +3,7 @@ RUN_DAY ?= $(shell date +"%e")
 BM_DAYS=$(shell seq -s ',' 0 $(RUN_DAY))
 SOURCE_DIR = $(PWD)
 STATIC_TMP_DIR = ~/tmp/aoc_build
+BM_RUNS ?= 50
 
 ifeq ($(OS),Windows_NT)
 	AOC_DEBUG=target\debug\advent-of-code-2021.exe
@@ -40,7 +41,7 @@ benchmark:
 	cp $(AOC_RELEASE) $(AOC_CMD)
 	hyperfine \
 		--export-markdown tmp/benchmark.md \
-		--warmup 10 --runs 50 \
+		--warmup 10 --runs $(BM_RUNS) \
 		-L parts 1,2 -L days $(BM_DAYS) \
 		"$(AOC_CMD) {days} {parts}"
 	cat tmp/benchmark.md
@@ -48,7 +49,7 @@ benchmark:
 # we copy into a WSL-only folder ($HOME/tmp),
 # so the bad WSL2 filesystem sync doesn't block us (almost 40ms extra time)
 benchmark.wsl: wsl.sync
-	cd $(STATIC_TMP_DIR) && $(MAKE) benchmark
+	cd $(STATIC_TMP_DIR) && $(MAKE) benchmark BM_RUNS=100
 
 prof.wsl: wsl.sync
 	cd $(STATIC_TMP_DIR) && \
