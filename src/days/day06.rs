@@ -46,10 +46,8 @@ type CounterValue = usize;
 type Counter = [CounterValue; 9];
 
 fn compute(input: StrInputRef, days: u8) -> CounterValue {
-    let population: Vec<u8> = input[0]
-        .split(',')
-        .map(|s| s.parse::<u8>().unwrap())
-        .collect();
+    let population: Vec<u8> =
+        input[0].split(',').map(|s| s.parse().unwrap()).collect();
 
     let mut counters: Counter = [0; 9];
     // for more efficient memory usage always reuse the same array for the loop:

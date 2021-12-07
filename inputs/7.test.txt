@@ -1,3 +1,3 @@
-<insert test input>
-<expected result part 1>
-<expected result part 2>
+16,1,2,0,4,2,7,1,2,14
+37
+168
