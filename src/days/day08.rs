@@ -65,17 +65,10 @@ fn part_2_(input: StrInputRef) -> usize {
                                     matches[3] = Some(token);
                                 }
                             }
-                            // Hey, cargo fmt, interesting formatting! XD
-                            if let (
-                                Some(one),
-                                Some(three),
-                                Some(four),
-                                Some(seven),
-                            ) =
-                                (matches[1], matches[3], matches[4], matches[7])
+                            if let (Some(three), Some(four), Some(seven)) =
+                                (matches[3], matches[4], matches[7])
                             {
-                                if intersect_count(token, one) == 1
-                                    && intersect_count(token, three) == 4
+                                if intersect_count(token, three) == 4
                                     && intersect_count(token, four) == 2
                                     && intersect_count(token, seven) == 2
                                 {
@@ -94,6 +87,15 @@ fn part_2_(input: StrInputRef) -> usize {
                         }
                         6 => {
                             // find 0, 6, 9
+                            if let (Some(one), Some(two)) =
+                                (matches[1], matches[2])
+                            {
+                                if intersect_count(token, one) == 1
+                                    && intersect_count(token, two) == 4
+                                {
+                                    matches[6] = Some(token);
+                                }
+                            }
                             if let (Some(one), Some(two), Some(three)) =
                                 (matches[1], matches[2], matches[3])
                             {
@@ -104,22 +106,13 @@ fn part_2_(input: StrInputRef) -> usize {
                                     matches[0] = Some(token);
                                 }
                             }
-                            if let (Some(seven), Some(zero)) =
-                                (matches[7], matches[0])
+                            if let (Some(zero), Some(seven)) =
+                                (matches[0], matches[7])
                             {
                                 if intersect_count(token, seven) == 3
                                     && intersect_count(token, zero) == 5
                                 {
                                     matches[9] = Some(token);
-                                }
-                            }
-                            if let (Some(one), Some(two)) =
-                                (matches[1], matches[2])
-                            {
-                                if intersect_count(token, one) == 1
-                                    && intersect_count(token, two) == 4
-                                {
-                                    matches[6] = Some(token);
                                 }
                             }
                         }
