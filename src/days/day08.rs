@@ -1,5 +1,3 @@
-type Sequence = Vec<String>;
-
 const UNIQUE_DIGITS: [usize; 4] = [2, 3, 4, 7];
 
 // idx = digit, value = segments
@@ -28,110 +26,100 @@ fn part_1_(input: StrInputRef) -> usize {
 }
 
 fn part_2_(input: StrInputRef) -> usize {
+    // slots for number 0 ... 9
+    // How to init an array of Options: https://github.com/rust-lang/rust/issues/44796
+    let mut matches: [Option<&str>; 10] = Default::default();
+    // all inputs remove 4 uniques, so we need to store only 6 more items
+    let mut inputs: Vec<&str> = Vec::with_capacity(6);
+
     unprocessed_lines_iter(input)
         .map(|(i_iter, o_iter)| {
-            // slots for number 0 ... 9
-            // How to init an array of Options: https://github.com/rust-lang/rust/issues/44796
-            let mut matches: [Option<String>; 10] = Default::default();
+            // reset for each line
+            matches = Default::default();
+            inputs.truncate(0);
 
             // first round, find unique values (1,4,7,8) + match them
             // and also remove them from the input list for the next step
-            let inputs: Sequence = i_iter
-                .filter(|&t| {
-                    if UNIQUE_DIGITS.contains(&t.len()) {
+            inputs = i_iter
+                .filter(|&token| {
+                    if UNIQUE_DIGITS.contains(&token.len()) {
                         matches[SEQMENTS_PER_DIGIT
                             .iter()
-                            .position(|&v| v == t.len())
-                            .unwrap()] = Some(t.to_owned());
+                            .position(|&v| v == token.len())
+                            .unwrap()] = Some(token);
                         false
                     } else {
                         true
                     }
                 })
-                .map(ToOwned::to_owned)
                 .collect();
 
             loop {
-                for token in &inputs {
+                for &token in &inputs {
                     // remaining tokens have length 5 or 6
                     match token.len() {
                         5 => {
                             // find 2, 3, 5
-                            if let Some(one) = matches[1].as_ref() {
+                            if let Some(one) = matches[1] {
                                 if intersect_count(token, one) == 2 {
-                                    matches[3] = Some(token.to_owned());
+                                    matches[3] = Some(token);
                                 }
                             }
-                            // very verbose, sorry …
-                            if matches[1].is_some()
-                                && matches[3].is_some()
-                                && matches[4].is_some()
-                                && matches[7].is_some()
+                            // Hey, cargo fmt, interesting formatting! XD
+                            if let (
+                                Some(one),
+                                Some(three),
+                                Some(four),
+                                Some(seven),
+                            ) =
+                                (matches[1], matches[3], matches[4], matches[7])
                             {
-                                let (&one, &three, &four, &seven) = (
-                                    &matches[1].as_ref().unwrap(),
-                                    &matches[3].as_ref().unwrap(),
-                                    &matches[4].as_ref().unwrap(),
-                                    &matches[7].as_ref().unwrap(),
-                                );
                                 if intersect_count(token, one) == 1
                                     && intersect_count(token, three) == 4
                                     && intersect_count(token, four) == 2
                                     && intersect_count(token, seven) == 2
                                 {
-                                    matches[2] = Some(token.to_owned());
+                                    matches[2] = Some(token);
                                 }
                             }
-                            if matches[2].is_some() && matches[4].is_some() {
-                                let (&two, &four) = (
-                                    &matches[2].as_ref().unwrap(),
-                                    &matches[4].as_ref().unwrap(),
-                                );
+                            if let (Some(two), Some(four)) =
+                                (matches[2], matches[4])
+                            {
                                 if intersect_count(token, two) == 3
                                     && intersect_count(token, four) == 3
                                 {
-                                    matches[5] = Some(token.to_owned());
+                                    matches[5] = Some(token);
                                 }
                             }
                         }
                         6 => {
                             // find 0, 6, 9
-                            if matches[1].is_some()
-                                && matches[2].is_some()
-                                && matches[3].is_some()
+                            if let (Some(one), Some(two), Some(three)) =
+                                (matches[1], matches[2], matches[3])
                             {
-                                let (&one, &two, &three) = (
-                                    &matches[1].as_ref().unwrap(),
-                                    &matches[2].as_ref().unwrap(),
-                                    &matches[3].as_ref().unwrap(),
-                                );
                                 if intersect_count(token, one) == 2
                                     && intersect_count(token, two) == 4
                                     && intersect_count(token, three) == 4
                                 {
-                                    matches[0] = Some(token.to_owned());
+                                    matches[0] = Some(token);
                                 }
                             }
-                            if matches[7].is_some() && matches[0].is_some() {
-                                let (&seven, &zero) = (
-                                    &matches[7].as_ref().unwrap(),
-                                    &matches[0].as_ref().unwrap(),
-                                );
+                            if let (Some(seven), Some(zero)) =
+                                (matches[7], matches[0])
+                            {
                                 if intersect_count(token, seven) == 3
                                     && intersect_count(token, zero) == 5
                                 {
-                                    matches[9] = Some(token.to_owned());
+                                    matches[9] = Some(token);
                                 }
                             }
-                            if matches[1].is_some() && matches[2].is_some() {
-                                let (&one, &two) = (
-                                    &matches[1].as_ref().unwrap(),
-                                    &matches[2].as_ref().unwrap(),
-                                );
+                            if let (Some(one), Some(two)) =
+                                (matches[1], matches[2])
+                            {
                                 if intersect_count(token, one) == 1
                                     && intersect_count(token, two) == 4
                                 {
-                                    matches[6] = Some(token.to_owned());
+                                    matches[6] = Some(token);
                                 }
                             }
                         }
@@ -149,7 +137,7 @@ fn part_2_(input: StrInputRef) -> usize {
             o_iter.rev().enumerate().fold(0, |acc, (idx, seq)| {
                 acc + (matches
                     .iter()
-                    .position(|v| sorted(v.as_ref().unwrap()) == sorted(seq))
+                    .position(|v| same_chars(v.unwrap(), seq))
                     .unwrap()
                     * 10usize.pow(idx as u32))
             })
@@ -157,10 +145,8 @@ fn part_2_(input: StrInputRef) -> usize {
         .sum()
 }
 
-fn sorted(t: &str) -> String {
-    let mut chars: Vec<char> = t.chars().collect();
-    chars.sort_unstable();
-    String::from_iter(chars)
+fn same_chars(left: &str, right: &str) -> bool {
+    left.len() == right.len() && left.chars().all(|l| right.contains(l))
 }
 
 fn intersect_count(left: &str, right: &str) -> usize {
@@ -172,7 +158,7 @@ fn unprocessed_lines_iter(
     input: StrInputRef,
 ) -> impl Iterator<
     Item = (
-        impl DoubleEndedIterator<Item = &str> + '_,
+        impl Iterator<Item = &str> + '_,
         impl DoubleEndedIterator<Item = &str> + '_,
     ),
 > + '_ {
