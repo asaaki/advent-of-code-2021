@@ -1,3 +1,7 @@
-<insert test input>
-<expected result part 1>
-<expected result part 2>
+2199943210
+3987894921
+9856789892
+8767896789
+9899965678
+15
+1134
