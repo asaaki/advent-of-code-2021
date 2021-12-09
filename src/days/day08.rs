@@ -134,12 +134,15 @@ fn part_2_(input: StrInputRef) -> usize {
             }
 
             // calculate displayed segment number
-            o_iter.rev().enumerate().fold(0, |acc, (idx, seq)| {
+            // .zip(0u32..) as alternative to .enumerate(), to return a different num type;
+            // be careful, the position is swapped (item, idx) instead of (idx, item);
+            // why? avoids casting
+            o_iter.rev().zip(0u32..).fold(0, |acc, (seq, idx)| {
                 acc + (matches
                     .iter()
                     .position(|v| same_chars(v.unwrap(), seq))
                     .unwrap()
-                    * 10usize.pow(idx as u32))
+                    * 10usize.pow(idx))
             })
         })
         .sum()
