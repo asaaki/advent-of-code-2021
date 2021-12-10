@@ -29,7 +29,7 @@ fn parse_input(input: StrInputRef) -> (Vec<usize>, Vec<Board>) {
                 board.fill(&slices);
                 boards.push(board);
             }
-            slices.truncate(0);
+            slices.clear();
         } else {
             let nums: Vec<usize> = line
                 .split_whitespace()

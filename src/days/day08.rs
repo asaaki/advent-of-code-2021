@@ -36,7 +36,7 @@ fn part_2_(input: StrInputRef) -> usize {
         .map(|(i_iter, o_iter)| {
             // reset for each line
             matches = Default::default();
-            inputs.truncate(0);
+            inputs.clear();
 
             // first round, find unique values (1,4,7,8) + match them
             // and also remove them from the input list for the next step
