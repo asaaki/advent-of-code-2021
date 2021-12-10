@@ -2,26 +2,7 @@ type Item = u8;
 type Row = Vec<Item>;
 type MI<'a> = MatrixV<'a, Item>;
 
-aoc_macros::day_impl! {
-    fn part1(&self) -> StringResult {
-        let result = part_1_(self.input);
-        ok_string(result)
-    },
-
-    fn part2(&self) -> StringResult {
-        let result = part_2_(self.input);
-        ok_string(result)
-    }
-}
-
-fn input2matrix(input: StrInputRef, transposed: bool) -> MI {
-    let mut m = MatrixV::new(input[0].len());
-    m.fill(&bitstream(input));
-    if transposed {
-        m.transpose();
-    }
-    m
-}
+aoc_macros::day_impl_common_and_compute!();
 
 fn part_1_(input: StrInputRef) -> usize {
     let input = input2matrix(input, true);
@@ -49,6 +30,15 @@ fn part_2_(input: StrInputRef) -> usize {
     let oxy = most_least_final(&input, true);
     let co2 = most_least_final(&input, false);
     oxy * co2
+}
+
+fn input2matrix(input: StrInputRef, transposed: bool) -> MI {
+    let mut m = MatrixV::new(input[0].len());
+    m.fill(&bitstream(input));
+    if transposed {
+        m.transpose();
+    }
+    m
 }
 
 fn bitstream(input: StrInputRef) -> Row {

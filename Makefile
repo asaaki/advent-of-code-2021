@@ -1,5 +1,6 @@
 CARGO = cargo
 RUN_DAY ?= $(shell date +"%e")
+RUN_DAYS=$(shell seq 1 $(RUN_DAY))
 BM_DAYS=$(shell seq -s ',' 0 $(RUN_DAY) | sed 's/,*$$//g')
 SOURCE_DIR = $(PWD)
 STATIC_TMP_DIR = ~/tmp/aoc_build
@@ -17,15 +18,25 @@ endif
 
 default: run
 
-run:
+build:
 	$(CARGO) build
+
+run: build run_
+
+run_:
 	$(AOC_DEBUG) $(RUN_DAY) 1 -t
 	$(AOC_DEBUG) $(RUN_DAY) 1
 	$(AOC_DEBUG) $(RUN_DAY) 2 -t
 	$(AOC_DEBUG) $(RUN_DAY) 2
 
+run.all: build
+	@for d in $(RUN_DAYS); do $(MAKE) run_ RUN_DAY=$$d; done
+
 run.wsl: wsl.sync
 	cd $(STATIC_TMP_DIR) && $(MAKE) run
+
+run.all.wsl: wsl.sync
+	cd $(STATIC_TMP_DIR) && $(MAKE) run.all
 
 test:
 	$(CARGO) test -- --nocapture

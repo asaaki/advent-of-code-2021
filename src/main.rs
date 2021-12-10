@@ -13,11 +13,7 @@ mod data;
 mod days;
 mod utils;
 
-const DAY_VALUES: &[&str; 26] = &[
-    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
-    "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25",
-];
-
+const DAY_VALUES: &[&str; 26] = aoc_proc_macros::day_str_values!();
 const PART_VALUES: &[&str; 2] = &["1", "2"];
 
 #[repr(u8)]

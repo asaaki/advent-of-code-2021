@@ -1,14 +1,19 @@
-aoc_macros::day_impl! {
-    fn part1(&self) -> StringResult {
-        let (draws, boards) = parse_input(self.input);
-        let result = run_draws(draws, boards);
-        ok_string(result)
-    },
+const fn board_size(dim: usize) -> usize {
+    dim * dim
+}
 
-    fn part2(&self) -> StringResult {
-        let (draws, boards) = parse_input(self.input);
-        let result = run_draws_until_last_win(draws, boards);
-        ok_string(result)
+const SIZE: usize = board_size(DIM);
+
+const DIM: usize = 5;
+
+aoc_macros::day_impl_common!();
+
+fn compute(input: StrInputRef, part_one: bool) -> usize {
+    let (draws, boards) = parse_input(input);
+    if part_one {
+        run_draws(draws, boards)
+    } else {
+        run_draws_until_last_win(draws, boards)
     }
 }
 
@@ -93,13 +98,6 @@ fn run_draws_until_last_win(
         .flatten()
         .expect("value to be a number")
 }
-
-const fn board_size(dim: usize) -> usize {
-    dim * dim
-}
-
-const DIM: usize = 5;
-const SIZE: usize = board_size(DIM);
 
 #[derive(Debug)]
 struct Board {

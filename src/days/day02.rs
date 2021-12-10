@@ -7,6 +7,21 @@ enum Movement {
 
 use Movement::*;
 
+aoc_macros::day_impl_common!();
+
+fn compute(input: StrInputRef, simple_move: bool) -> usize {
+    let mut state = State::default();
+    for s in input {
+        let m = Movement::parse(s);
+        if simple_move {
+            state.r#move(m)
+        } else {
+            state.aimed_move(m)
+        }
+    }
+    state.product()
+}
+
 impl AsRef<Movement> for Movement {
     #[inline]
     fn as_ref(&self) -> &Movement {
@@ -62,30 +77,5 @@ impl State {
 
     fn product(&self) -> usize {
         self.depth * self.horizontal
-    }
-}
-
-fn process(input: StrInputRef, aimed: bool) -> usize {
-    let mut state = State::default();
-    for s in input {
-        let m = Movement::parse(s);
-        if aimed {
-            state.aimed_move(m)
-        } else {
-            state.r#move(m)
-        }
-    }
-    state.product()
-}
-
-aoc_macros::day_impl! {
-    fn part1(&self) -> StringResult {
-        let result = process(self.input, false);
-        ok_string(result)
-    },
-
-    fn part2(&self) -> StringResult {
-        let result = process(self.input, true);
-        ok_string(result)
     }
 }

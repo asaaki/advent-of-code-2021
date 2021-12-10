@@ -1,17 +1,7 @@
-aoc_macros::day_impl! {
-    fn part1(&self) -> StringResult {
-        let result = compute(self.input, false);
-        ok_string(result)
-    },
+aoc_macros::day_impl_common!();
 
-    fn part2(&self) -> StringResult {
-        let result = compute(self.input, true);
-        ok_string(result)
-    }
-}
-
-fn compute(input: StrInputRef, diagonals: bool) -> usize {
-    let vents = parse_vents(input, diagonals);
+fn compute(input: StrInputRef, part_one: bool) -> usize {
+    let vents = parse_vents(input, !part_one);
     let max = vents.iter().flatten().map(|(x, y)| x.max(y)).max().unwrap();
     let mut map: MatrixV<usize> = MatrixV::new(max + 1); // if v{0-9} -> 10x10 map
     map.fill_square(0);

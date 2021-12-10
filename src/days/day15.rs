@@ -1,9 +1,9 @@
-aoc_macros::day_impl! {
-    fn part1(&self) -> StringResult {
-        ok_string("[step1] not implemented yet")
-    },
+aoc_macros::day_impl_common!();
 
-    fn part2(&self) -> StringResult {
-        ok_string("[step2] not implemented yet")
+fn compute(_input: StrInputRef, first_part: bool) -> usize {
+    if first_part {
+        todo!("[part 1] not yet implemented");
+    } else {
+        todo!("[part 2] not yet implemented");
     }
 }

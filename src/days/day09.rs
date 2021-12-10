@@ -25,17 +25,7 @@ enum Cell {
 type CellLine = Vec<Cell>;
 type CellMap = Vec<CellLine>;
 
-aoc_macros::day_impl! {
-    fn part1(&self) -> StringResult {
-        let result = part_1_(self.input);
-        ok_string(result)
-    },
-
-    fn part2(&self) -> StringResult {
-        let result = part_2_(self.input);
-        ok_string(result)
-    }
-}
+aoc_macros::day_impl_common_and_compute!();
 
 fn part_1_(input: StrInputRef) -> usize {
     let map = parse(input);

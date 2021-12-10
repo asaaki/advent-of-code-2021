@@ -3,17 +3,7 @@ const UNIQUE_DIGITS: [usize; 4] = [2, 3, 4, 7];
 // idx = digit, value = segments
 const SEQMENTS_PER_DIGIT: [usize; 10] = [6, 2, 5, 5, 4, 5, 6, 3, 7, 6];
 
-aoc_macros::day_impl! {
-    fn part1(&self) -> StringResult {
-        let result = part_1_(self.input);
-        ok_string(result)
-    },
-
-    fn part2(&self) -> StringResult {
-        let result = part_2_(self.input);
-        ok_string(result)
-    }
-}
+aoc_macros::day_impl_common_and_compute!();
 
 fn part_1_(input: StrInputRef) -> usize {
     unprocessed_lines_iter(input)

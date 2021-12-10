@@ -18,6 +18,8 @@ codegen-units = 1
 debug = true
 
 [dependencies]
+aoc_proc_macros = { path = "./aoc_proc_macros" }
+
 kommand = "0.6.0"
 nameless = "0.6.0"
 shadow-rs = "0.8.1"

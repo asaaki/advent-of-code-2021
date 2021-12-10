@@ -5,17 +5,7 @@ const TOKENS: [(char, char, usize); 4] = [
     ('<', '>', 25137),
 ];
 
-aoc_macros::day_impl! {
-    fn part1(&self) -> StringResult {
-        let result = compute(self.input, true);
-        ok_string(result)
-    },
-
-    fn part2(&self) -> StringResult {
-        let result = compute(self.input, false);
-        ok_string(result)
-    }
-}
+aoc_macros::day_impl_common!();
 
 fn compute(input: StrInputRef, summarize_corrupted: bool) -> usize {
     let len = maxlen(input);

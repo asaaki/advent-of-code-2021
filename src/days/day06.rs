@@ -1,18 +1,6 @@
 const DAYS_PART1: u8 = 79;
 const DAYS_PART2: u8 = 255;
 
-aoc_macros::day_impl! {
-    fn part1(&self) -> StringResult {
-        let result = compute(self.input, DAYS_PART1);
-        ok_string(result)
-    },
-
-    fn part2(&self) -> StringResult {
-        let result = compute(self.input, DAYS_PART2);
-        ok_string(result)
-    }
-}
-
 /*
 The naive approach:
 - create a list with the counters ([3,4,3,1,2])
@@ -45,7 +33,14 @@ Smarter approach:
 type CounterValue = usize;
 type Counter = [CounterValue; 9];
 
-fn compute(input: StrInputRef, days: u8) -> CounterValue {
+aoc_macros::day_impl_common!();
+
+fn compute(input: StrInputRef, part_one_days: bool) -> CounterValue {
+    let days = if part_one_days {
+        DAYS_PART1
+    } else {
+        DAYS_PART2
+    };
     let population: Vec<u8> =
         input[0].split(',').map(|s| s.parse().unwrap()).collect();
 
