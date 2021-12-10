@@ -1,6 +1,6 @@
 CARGO = cargo
 RUN_DAY ?= $(shell date +"%e")
-BM_DAYS=$(shell seq -s ',' 0 $(RUN_DAY))
+BM_DAYS=$(shell seq -s ',' 0 $(RUN_DAY) | sed 's/,*$$//g')
 SOURCE_DIR = $(PWD)
 STATIC_TMP_DIR = ~/tmp/aoc_build
 BM_RUNS ?= 50
@@ -40,9 +40,10 @@ benchmark:
 	$(CARGO) build --release
 	cp $(AOC_RELEASE) $(AOC_CMD)
 	hyperfine \
+		--ignore-failure\
 		--export-markdown tmp/benchmark.md \
 		--warmup 10 --runs $(BM_RUNS) \
-		-L parts 1,2 -L days $(BM_DAYS) \
+		-L parts "1,2" -L days "$(BM_DAYS)" \
 		"$(AOC_CMD) {days} {parts}"
 	cat tmp/benchmark.md
 
