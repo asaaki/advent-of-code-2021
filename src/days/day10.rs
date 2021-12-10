@@ -1,7 +1,9 @@
-const TAGS: [(char, char); 4] =
-    [('(', ')'), ('[', ']'), ('{', '}'), ('<', '>')];
-
-const TAG_VALUES: [usize; 4] = [3, 57, 1197, 25137];
+const TAGS: [(char, char, usize); 4] = [
+    ('(', ')', 3),
+    ('[', ']', 57),
+    ('{', '}', 1197),
+    ('<', '>', 25137),
+];
 
 aoc_macros::day_impl! {
     fn part1(&self) -> StringResult {
@@ -29,7 +31,7 @@ fn compute(input: StrInputRef, summarize_corrupted: bool) -> usize {
                 (validate(line, &mut stack) == 0).then(|| {
                     stack.iter().rev().fold(0, |acc, c| {
                         (acc * 5)
-                            + TAGS.iter().position(|(_, t)| t == c).unwrap()
+                            + TAGS.iter().position(|(_, t, _)| t == c).unwrap()
                             + 1
                     })
                 })
@@ -55,7 +57,7 @@ fn maxlen(input: StrInputRef) -> usize {
 fn validate(line: &str, stack: &mut Vec<char>) -> usize {
     stack.clear();
     for c in line.chars() {
-        for (idx, (open, close)) in TAGS.iter().enumerate() {
+        for (open, close, value) in TAGS.iter() {
             if c == *open {
                 stack.push(*close);
             }
@@ -63,7 +65,7 @@ fn validate(line: &str, stack: &mut Vec<char>) -> usize {
                 if stack.last().unwrap() == &c {
                     stack.pop();
                 } else {
-                    return TAG_VALUES[idx];
+                    return *value;
                 }
             }
         }
