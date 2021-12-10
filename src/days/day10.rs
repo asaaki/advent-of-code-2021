@@ -1,4 +1,4 @@
-const TAGS: [(char, char, usize); 4] = [
+const TOKENS: [(char, char, usize); 4] = [
     ('(', ')', 3),
     ('[', ']', 57),
     ('{', '}', 1197),
@@ -19,21 +19,16 @@ aoc_macros::day_impl! {
 
 fn compute(input: StrInputRef, summarize_corrupted: bool) -> usize {
     let len = maxlen(input);
+    let input_iter = input.iter();
     let mut stack = Vec::with_capacity(len);
     if summarize_corrupted {
-        input
-            .iter()
-            .fold(0, |acc, line| acc + validate(line, &mut stack))
+        input_iter.fold(0, |acc, line| acc + validate(line, &mut stack))
     } else {
-        let mut scores: Vec<usize> = input
-            .iter()
+        // allocation needed for sorting
+        let mut scores: Vec<usize> = input_iter
             .filter_map(|line| {
                 (validate(line, &mut stack) == 0).then(|| {
-                    stack.iter().rev().fold(0, |acc, c| {
-                        (acc * 5)
-                            + TAGS.iter().position(|(_, t, _)| t == c).unwrap()
-                            + 1
-                    })
+                    stack.iter().rev().fold(0, |acc, i| (acc * 5) + i + 1)
                 })
             })
             .collect();
@@ -54,15 +49,15 @@ fn maxlen(input: StrInputRef) -> usize {
 }
 
 // #[inline]
-fn validate(line: &str, stack: &mut Vec<char>) -> usize {
+fn validate(line: &str, stack: &mut Vec<usize>) -> usize {
     stack.clear();
     for c in line.chars() {
-        for (open, close, value) in TAGS.iter() {
+        for (idx, (open, close, value)) in TOKENS.iter().enumerate() {
             if c == *open {
-                stack.push(*close);
+                stack.push(idx);
             }
             if c == *close {
-                if stack.last().unwrap() == &c {
+                if TOKENS[*stack.last().unwrap()].1 == c {
                     stack.pop();
                 } else {
                     return *value;
