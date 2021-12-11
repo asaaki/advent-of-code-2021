@@ -1,3 +1,4 @@
+use std::fmt::{Debug as FmtDebug, Display as FmtDisplay};
 use std::marker::PhantomData;
 use std::ops::Sub;
 use std::slice::ChunksExact;
@@ -20,7 +21,7 @@ pub(crate) trait MatrixLike<'a> {
     fn iter_rows(&self) -> ChunksExact<Self::Item>;
     fn iter_cols(&self) -> ColumnIter<Self::Item>
     where
-        <Self as MatrixLike<'a>>::Item: std::fmt::Debug;
+        <Self as MatrixLike<'a>>::Item: FmtDebug;
 
     fn transpose(&mut self);
 
@@ -43,18 +44,40 @@ pub(crate) struct MatrixV<'a, T: Default> {
     _marker: PhantomData<&'a T>,
 }
 
-impl<'a, T: Default> MatrixV<'a, T> {
+impl<'a, T: FmtDebug + FmtDisplay + Default + Copy> MatrixV<'a, T> {
     pub(crate) fn new(chunk_size: usize) -> Self {
         Self {
             chunk_size,
             ..Self::default()
         }
     }
+
+    #[allow(dead_code)]
+    pub(crate) fn iter(&self) -> impl Iterator<Item = &T> {
+        self.data.iter()
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
+        self.data.iter_mut()
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn debug_print(&self) {
+        for row in self.iter_rows() {
+            // eprintln!("{:?}", row);
+            eprintln!(
+                "{}",
+                row.iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join("")
+            );
+        }
+    }
 }
 
-impl<'a, T: std::fmt::Debug + Default + Clone> MatrixLike<'a>
-    for MatrixV<'a, T>
-{
+impl<'a, T: FmtDebug + Default + Clone> MatrixLike<'a> for MatrixV<'a, T> {
     type Item = T;
 
     fn len(&self) -> usize {
@@ -135,7 +158,9 @@ pub(crate) struct MatrixA<'a, T: Default + Copy, const S: usize> {
     _marker: PhantomData<&'a T>,
 }
 
-impl<'a, T: Default + Copy, const S: usize> MatrixA<'a, T, S> {
+impl<'a, T: FmtDebug + FmtDisplay + Default + Copy, const S: usize>
+    MatrixA<'a, T, S>
+{
     #[allow(dead_code)]
     pub(crate) fn new(chunk_size: usize) -> Self {
         let data = [T::default(); S];
@@ -153,10 +178,34 @@ impl<'a, T: Default + Copy, const S: usize> MatrixA<'a, T, S> {
             _marker: PhantomData,
         }
     }
+
+    #[allow(dead_code)]
+    pub(crate) fn iter(&self) -> impl Iterator<Item = &T> {
+        self.data.iter()
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
+        self.data.iter_mut()
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn debug_print(&self) {
+        for row in self.iter_rows() {
+            // eprintln!("{:?}", row);
+            eprintln!(
+                "{}",
+                row.iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join("")
+            );
+        }
+    }
 }
 
-impl<'a, T: std::fmt::Debug + Default + Copy + Clone, const S: usize>
-    MatrixLike<'a> for MatrixA<'a, T, S>
+impl<'a, T: FmtDebug + Default + Copy + Clone, const S: usize> MatrixLike<'a>
+    for MatrixA<'a, T, S>
 {
     type Item = T;
 
@@ -189,6 +238,14 @@ impl<'a, T: std::fmt::Debug + Default + Copy + Clone, const S: usize>
     fn view(&'a self) -> &[Self::Item] {
         &self.data[..]
     }
+
+    // pub(crate) fn iter(&self) -> impl Iterator<Item = &T> {
+    //     self.data.iter()
+    // }
+
+    // pub(crate) fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
+    //     self.data.iter_mut()
+    // }
 
     fn iter_rows(&self) -> ChunksExact<Self::Item> {
         self.data.chunks_exact(self.chunk_size)
@@ -230,13 +287,13 @@ impl<'a, T: std::fmt::Debug + Default + Copy + Clone, const S: usize>
 trait ColumnIterExt<T> {
     fn column_iter(&self, chunk_size: usize) -> ColumnIter<'_, T>
     where
-        T: std::fmt::Debug;
+        T: FmtDebug;
 }
 
 impl<T> ColumnIterExt<T> for [T] {
     fn column_iter(&self, chunk_size: usize) -> ColumnIter<'_, T>
     where
-        T: std::fmt::Debug,
+        T: FmtDebug,
     {
         assert_ne!(chunk_size, 0);
         ColumnIter::new(self, chunk_size)
@@ -246,7 +303,7 @@ impl<T> ColumnIterExt<T> for [T] {
 #[derive(Debug, Clone)]
 pub struct ColumnIter<'a, T: 'a>
 where
-    T: std::fmt::Debug,
+    T: FmtDebug,
 {
     slice: &'a [T],
     chunk_size: usize,
@@ -257,7 +314,7 @@ where
 
 impl<'a, T> ColumnIter<'a, T>
 where
-    T: std::fmt::Debug,
+    T: FmtDebug,
 {
     #[inline]
     pub(super) fn new(slice: &'a [T], chunk_size: usize) -> Self {
@@ -275,14 +332,14 @@ where
 
 impl<'a, T: Clone> Iterator for ColumnIter<'a, T>
 where
-    T: std::fmt::Debug,
+    T: FmtDebug,
 {
     type Item = Vec<&'a T>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item>
     where
-        T: std::fmt::Debug,
+        T: FmtDebug,
     {
         if self.slice.len() < self.chunk_size
             || self.slice.len() < self.col_size
