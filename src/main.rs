@@ -1,13 +1,14 @@
-use days::helpers::StrInput;
+use days::helpers::{Cow, StrInput};
+use rust_embed::RustEmbed;
 use std::{
-    borrow::Cow,
     convert::TryFrom,
-    env::current_dir,
-    fs::File,
-    io::{BufRead, BufReader},
-    path::PathBuf,
+    io::{BufRead, Cursor},
 };
 use utils::*;
+
+#[derive(RustEmbed)]
+#[folder = "inputs"]
+struct Inputs;
 
 mod data;
 mod days;
@@ -49,16 +50,12 @@ fn main(
 
     let input = {
         let test_or_challenge = if test { "test" } else { "challenge" };
-        let rel_input: PathBuf =
-            format!("inputs/{}.{}.txt", day, test_or_challenge)
-                .parse()
-                .expect("arguments to form a valid path string");
-        let mut input_path = current_dir()?;
-        input_path.push(rel_input);
-        File::open(input_path)?
+        Inputs::get(&format!("{}.{}.txt", day, test_or_challenge))
+            .expect("input file to be stored in binary")
+            .data
     };
 
-    let mut input: StrInput = BufReader::new(input)
+    let mut input: StrInput = Cursor::new(&input)
         .lines()
         .filter_map(Result::ok)
         .map(Cow::from)

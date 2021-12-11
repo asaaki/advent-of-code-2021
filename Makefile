@@ -10,16 +10,24 @@ ifeq ($(OS),Windows_NT)
 	AOC_DEBUG=target\debug\advent-of-code-2021.exe
 	AOC_RELEASE=target\release\advent-of-code-2021.exe
 	AOC_CMD=tmp\aoc.win.exe
+	LS =
 else
 	AOC_DEBUG=target/debug/advent-of-code-2021
 	AOC_RELEASE=target/release/advent-of-code-2021
 	AOC_CMD=tmp/aoc.linux
+	RUST_FLAGS = RUSTFLAGS='-C link-arg=-s'
+	LS = ls -ahlF $(AOC_RELEASE) $(AOC_DEBUG)
 endif
 
 default: run
 
 build:
 	$(CARGO) build
+	$(RUST_FLAGS) $(CARGO) build --release
+	@$(LS)
+
+build.wsl: wsl.sync
+	cd $(STATIC_TMP_DIR) && $(MAKE) build
 
 run: build run_
 
@@ -48,7 +56,7 @@ test.wsl: wsl.sync
 # benchmarking
 
 benchmark:
-	$(CARGO) build --release
+	RUSTFLAGS='-C link-arg=-s' $(CARGO) build --release
 	cp $(AOC_RELEASE) $(AOC_CMD)
 	hyperfine \
 		--ignore-failure\
@@ -63,6 +71,7 @@ benchmark:
 benchmark.wsl: wsl.sync
 	cd $(STATIC_TMP_DIR) && $(MAKE) benchmark BM_RUNS=100
 
+# ENABLE in Cargo.toml: debug = true
 prof.wsl: wsl.sync
 	cd $(STATIC_TMP_DIR) && \
 	$(CARGO) build --release && \

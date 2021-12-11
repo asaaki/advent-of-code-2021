@@ -1,7 +1,8 @@
 use crate::utils::OkResult;
-use std::borrow::Cow;
 use std::fmt::Display;
 use std::str::FromStr;
+
+pub(crate) use beef::lean::Cow;
 
 pub(crate) type Str<'a> = Cow<'a, str>;
 // when creating the collection
