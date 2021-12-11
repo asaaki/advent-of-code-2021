@@ -22,8 +22,8 @@ aoc_macros::day_impl_common!();
 fn compute(input: StrInputRef, first_part: bool) -> usize {
     let mut map = init_map(input);
     // quite a lot of temporaries and states ¯\_(ツ)_/¯
-    let mut queue = Queue::new();
-    let mut flashes = FlashSet::new();
+    let mut queue = Queue::with_capacity(SIZE);
+    let mut flashes = FlashSet::with_capacity(SIZE);
     let mut total = 0;
 
     if first_part {
