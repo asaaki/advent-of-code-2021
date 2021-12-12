@@ -69,7 +69,7 @@ fn traverse_cave(
     counts: &mut usize
 ) -> () {
     use Node::*;
-    let mut visits = visits.clone();
+    let mut visits = visits;
 
     if let Small(id) = from {
         let &c = visits.get(id).unwrap();
