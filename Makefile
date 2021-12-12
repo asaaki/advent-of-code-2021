@@ -1,33 +1,28 @@
-CARGO = cargo
-RUN_DAY ?= $(shell date +"%e")
-RUN_DAYS=$(shell seq 1 $(RUN_DAY))
-BM_DAYS=$(shell seq -s ',' 0 $(RUN_DAY) | sed 's/,*$$//g')
-SOURCE_DIR = $(PWD)
-STATIC_TMP_DIR = ~/tmp/aoc_build
-BM_RUNS ?= 50
-
-PROFILE ?= debug
+CARGO           = cargo
+RUN_DAY        ?= $(shell date +"%e")
+RUN_DAYS        = $(shell seq 1 $(RUN_DAY))
+BM_DAYS         = $(shell seq -s ',' 0 $(RUN_DAY) | sed 's/,*$$//g')
+SOURCE_DIR      = $(PWD)
+STATIC_TMP_DIR  = ~/tmp/aoc_build
+PROFILE        ?= debug
+BM_PROFILE     ?= release
+BM_RUNS        ?= 50
 
 ifeq ($(OS),Windows_NT)
-	AOC_DEBUG=target\debug\advent-of-code-2021.exe
-	AOC_RELEASE=target\release\advent-of-code-2021.exe
-	AOC_RUN=target\$(PROFILE)\advent-of-code-2021.exe
-	AOC_CMD=tmp\aoc.win.exe
-	LS =
+	AOC_RUN     = target\$(PROFILE)\advent-of-code-2021.exe
+	AOC_BM_RUN  = target\$(BM_PROFILE)\advent-of-code-2021.exe
+	AOC_CMD     = tmp\aoc.win.exe
 else
-	AOC_DEBUG=target/debug/advent-of-code-2021
-	AOC_RELEASE=target/release/advent-of-code-2021
-	AOC_RUN=target/$(PROFILE)/advent-of-code-2021
-	AOC_CMD=tmp/aoc.linux
-	RUST_FLAGS = RUSTFLAGS='-C link-arg=-s'
-	LS = ls -ahlF $(AOC_RELEASE) $(AOC_DEBUG)
-	TIME = time
+	AOC_RUN     = target/$(PROFILE)/advent-of-code-2021
+	AOC_BM_RUN  = target/$(BM_PROFILE)/advent-of-code-2021
+	AOC_CMD     = tmp/aoc.linux
+	RUST_FLAGS  = RUSTFLAGS='-C link-arg=-s'
 endif
 
 default: run
 
 build: build.dbg build.release
-	@$(LS)
+	file target/*/advent-of-code* | grep -E "executable|ELF" | cut -f1 -d':' | xargs ls -ahlF
 
 build.dbg:
 	$(CARGO) build
@@ -52,6 +47,12 @@ run.all: build
 run.wsl: wsl.sync
 	cd $(STATIC_TMP_DIR) && $(MAKE) run PROFILE=$(PROFILE)
 
+run.both.wsl: wsl.sync
+	cd $(STATIC_TMP_DIR) \
+		&& $(MAKE) build \
+		&& $(MAKE) run_ PROFILE=debug \
+		&& $(MAKE) run_ PROFILE=release
+
 run.dbg.wsl: wsl.sync
 	cd $(STATIC_TMP_DIR) && $(MAKE) build.dbg run_
 
@@ -67,9 +68,8 @@ test.wsl: wsl.sync
 
 # benchmarking
 
-benchmark:
-	RUSTFLAGS='-C link-arg=-s' $(CARGO) build --release
-	cp $(AOC_RELEASE) $(AOC_CMD)
+benchmark: build
+	cp $(AOC_BM_RUN) $(AOC_CMD)
 	hyperfine \
 		--ignore-failure\
 		--export-markdown tmp/benchmark.md \
