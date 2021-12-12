@@ -33,6 +33,27 @@ impl Error for CustomError {}
 
 pub(crate) type CustomErrorResult<T> = std::result::Result<T, CustomError>;
 
+pub(crate) const DAY_VALUES: &[&str; 26] = aoc_proc_macros::day_str_values!();
+pub(crate) const PART_VALUES: &[&str; 2] = &["1", "2"];
+
+#[repr(u8)]
+#[derive(Copy, Clone)]
+pub(crate) enum Part {
+    One = 1,
+    Two = 2,
+}
+
+impl TryFrom<u8> for Part {
+    type Error = &'static str;
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            1 => Ok(Part::One),
+            2 => Ok(Part::Two),
+            _ => Err("A day can have only 2 parts"),
+        }
+    }
+}
+
 // debug
 
 pub(crate) fn print_debug() -> NullResult {

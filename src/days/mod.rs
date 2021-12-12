@@ -41,7 +41,7 @@ pub(crate) fn call_a_day(
             }
 
             Ok(format!(
-                "\n{}\n--- took {:6.3} ms\n",
+                "{} (and it took {:6.3} ms to calculate)",
                 result,
                 runtime.as_secs_f64() * 1000.0
             ))
