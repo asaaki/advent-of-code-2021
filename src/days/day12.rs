@@ -4,6 +4,7 @@ type Id<'a> = &'a str;
 type Nodes<'a> = Vec<Id<'a>>;
 type CaveSystem<'a> = HashMap<Id<'a>, Nodes<'a>>;
 type CavePath<'a> = Vec<Id<'a>>;
+type CavePathRef<'a> = &'a [Id<'a>];
 
 const START: &str = "start";
 const END: &str = "end";
@@ -19,10 +20,10 @@ fn make_caves(input: StrInputRef) -> CaveSystem {
     let mut caves = CaveSystem::new();
     for line in input {
         let (l, r) = line.split_once("-").unwrap();
-        let entry = caves.entry(&l).or_insert(Nodes::new());
-        entry.push(&r);
-        let entry = caves.entry(&r).or_insert(Nodes::new());
-        entry.push(&l);
+        let entry = caves.entry(l).or_insert_with(Nodes::new);
+        entry.push(r);
+        let entry = caves.entry(r).or_insert_with(Nodes::new);
+        entry.push(l);
     }
     caves
 }
@@ -47,13 +48,13 @@ fn traverse_cave(
                         false,
                         caves,
                         node,
-                        new_path_with(&node, &path),
+                        new_path_with(node, &path[..]),
                     );
             }
             return count;
         }
 
-        count + traverse_cave(twice, caves, node, new_path_with(&node, &path))
+        count + traverse_cave(twice, caves, node, new_path_with(node, &path[..]))
     })
 }
 
@@ -63,8 +64,8 @@ fn is_lower(id: Id) -> bool {
 }
 
 #[inline]
-fn new_path_with<'a>(node: &'a Id, path: &'a CavePath) -> CavePath<'a> {
-    let mut new_path = path.clone();
+fn new_path_with<'a>(node: Id<'a>, path: CavePathRef<'a>) -> CavePath<'a> {
+    let mut new_path = path.to_vec();
     new_path.push(node);
     new_path
 }
