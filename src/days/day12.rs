@@ -1,14 +1,17 @@
 use std::collections::HashMap;
 
-aoc_macros::day_impl_common!();
-
 type Id<'a> = &'a str;
 type Nodes<'a> = Vec<Id<'a>>;
 type CaveSystem<'a> = HashMap<Id<'a>, Nodes<'a>>;
 type CavePath<'a> = Vec<Id<'a>>;
 
+const START: &str = "start";
+const END: &str = "end";
+
+aoc_macros::day_impl_common!();
+
 fn compute(input: StrInputRef, first_part: bool) -> usize {
-    traverse_cave(!first_part, &make_caves(input), "start", vec!["start"])
+    traverse_cave(!first_part, &make_caves(input), START, vec![START])
 }
 
 #[inline]
@@ -31,10 +34,10 @@ fn traverse_cave(
     path: CavePath,
 ) -> usize {
     caves.get(id).unwrap().iter().fold(0, |count, &node| {
-        if node == "start" {
+        if node == START {
             return count;
         }
-        if node == "end" {
+        if node == END {
             return count + 1;
         }
         if is_lower(node) && path.contains(&node) {
