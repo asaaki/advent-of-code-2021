@@ -6,25 +6,34 @@ SOURCE_DIR = $(PWD)
 STATIC_TMP_DIR = ~/tmp/aoc_build
 BM_RUNS ?= 50
 
+PROFILE ?= debug
+
 ifeq ($(OS),Windows_NT)
 	AOC_DEBUG=target\debug\advent-of-code-2021.exe
 	AOC_RELEASE=target\release\advent-of-code-2021.exe
+	AOC_RUN=target\$(PROFILE)\advent-of-code-2021.exe
 	AOC_CMD=tmp\aoc.win.exe
 	LS =
 else
 	AOC_DEBUG=target/debug/advent-of-code-2021
 	AOC_RELEASE=target/release/advent-of-code-2021
+	AOC_RUN=target/$(PROFILE)/advent-of-code-2021
 	AOC_CMD=tmp/aoc.linux
 	RUST_FLAGS = RUSTFLAGS='-C link-arg=-s'
 	LS = ls -ahlF $(AOC_RELEASE) $(AOC_DEBUG)
+	TIME = time
 endif
 
 default: run
 
-build:
-	$(CARGO) build
-	$(RUST_FLAGS) $(CARGO) build --release
+build: build.dbg build.release
 	@$(LS)
+
+build.dbg:
+	$(CARGO) build
+
+build.release:
+	$(RUST_FLAGS) $(CARGO) build --release
 
 build.wsl: wsl.sync
 	cd $(STATIC_TMP_DIR) && $(MAKE) build
@@ -32,16 +41,19 @@ build.wsl: wsl.sync
 run: build run_
 
 run_:
-	$(AOC_DEBUG) $(RUN_DAY) 1 -t
-	$(AOC_DEBUG) $(RUN_DAY) 1
-	$(AOC_DEBUG) $(RUN_DAY) 2 -t
-	$(AOC_DEBUG) $(RUN_DAY) 2
+	$(AOC_RUN) $(RUN_DAY) 1 -t
+	$(AOC_RUN) $(RUN_DAY) 1
+	$(AOC_RUN) $(RUN_DAY) 2 -t
+	$(AOC_RUN) $(RUN_DAY) 2
 
 run.all: build
 	@for d in $(RUN_DAYS); do $(MAKE) run_ RUN_DAY=$$d; done
 
 run.wsl: wsl.sync
-	cd $(STATIC_TMP_DIR) && $(MAKE) run
+	cd $(STATIC_TMP_DIR) && $(MAKE) run PROFILE=$(PROFILE)
+
+run.dbg.wsl: wsl.sync
+	cd $(STATIC_TMP_DIR) && $(MAKE) build.dbg run_
 
 run.all.wsl: wsl.sync
 	cd $(STATIC_TMP_DIR) && $(MAKE) run.all

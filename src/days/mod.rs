@@ -1,6 +1,7 @@
 use self::helpers::{Str, StrInputRef};
 use super::Part;
 use crate::utils::*;
+use std::time::Instant;
 
 aoc_proc_macros::add_day_mods!();
 pub(crate) mod helpers;
@@ -27,7 +28,9 @@ pub(crate) fn call_a_day(
         aoc_proc_macros::add_day_matches!();
     match maybe_day {
         Some(d) => {
+            let instant = Instant::now();
             let result = d.part(part).expect("(infallible)");
+            let runtime = instant.elapsed();
             let test = match part {
                 Part::One => tests.0.as_ref(),
                 Part::Two => tests.1.as_ref(),
@@ -37,7 +40,11 @@ pub(crate) fn call_a_day(
                 assert_eq!(&result, expected);
             }
 
-            Ok(result)
+            Ok(format!(
+                "\n{}\n--- took {:6.3} ms\n",
+                result,
+                runtime.as_secs_f64() * 1000.0
+            ))
         }
         None => Err(CustomError("invalid day".into())),
     }
