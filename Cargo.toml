@@ -20,15 +20,18 @@ codegen-units = 1
 [dependencies]
 aoc_proc_macros = { path = "./aoc_proc_macros" }
 
+ahash = "0.7.6"
 beef = "0.5.1"
+hash32 = "0.2.1"
 kommand = "0.6.0"
 nameless = "0.6.0"
-rust-embed = { version = "6.3.0", features = ["compression"]}
+rust-embed = { version = "6.3.0", features = ["compression"] }
 shadow-rs = "0.8.1"
 unstd = "0.1.0"
 yyid = "0.6.0"
 
 # bitvec = "0.22.3"
+# fasthash = "0.4.0"
 # itertools = "0.10.1"
 # ndarray = "0.15.4"
 # num_enum = "0.5.4"
