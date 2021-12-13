@@ -31,7 +31,7 @@ My solutions for each task.
 opt-level = 3
 lto = true
 codegen-units = 1
-debug = true
+# debug = true
 ```
 
 ```sh
