@@ -1,7 +1,7 @@
 use std::fmt::{Debug as FmtDebug, Display as FmtDisplay};
 use std::marker::PhantomData;
 use std::ops::Sub;
-use std::slice::ChunksExact;
+use std::slice::{ChunksExact, Iter, IterMut};
 
 pub(crate) trait MatrixLike<'a> {
     type Item;
@@ -10,6 +10,10 @@ pub(crate) trait MatrixLike<'a> {
 
     fn fill(&mut self, input: &[Self::Item]);
 
+    fn fill_iter<I>(&mut self, input_iter: I)
+    where
+        I: Iterator<Item = Self::Item>;
+
     fn fill_square(&mut self, value: Self::Item);
 
     fn insert(&mut self, x: usize, y: usize, v: Self::Item);
@@ -17,6 +21,12 @@ pub(crate) trait MatrixLike<'a> {
     fn get(&'a self, x: usize, y: usize) -> Option<&'a Self::Item>;
 
     fn view(&'a self) -> &[Self::Item];
+
+    fn view_mut(&'a mut self) -> &mut [Self::Item];
+
+    fn iter(&self) -> Iter<Self::Item>;
+
+    fn iter_mut(&mut self) -> IterMut<Self::Item>;
 
     fn iter_rows(&self) -> ChunksExact<Self::Item>;
     fn iter_cols(&self) -> ColumnIter<Self::Item>
@@ -53,16 +63,6 @@ impl<'a, T: FmtDebug + FmtDisplay + Default + Copy> MatrixV<'a, T> {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn iter(&self) -> impl Iterator<Item = &T> {
-        self.data.iter()
-    }
-
-    #[allow(dead_code)]
-    pub(crate) fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
-        self.data.iter_mut()
-    }
-
-    #[allow(dead_code)]
     pub(crate) fn debug_print(&self) {
         for row in self.iter_rows() {
             // eprintln!("{:?}", row);
@@ -75,9 +75,19 @@ impl<'a, T: FmtDebug + FmtDisplay + Default + Copy> MatrixV<'a, T> {
             );
         }
     }
+
+    // #[allow(dead_code)]
+    // fn transpose_faster(&mut self) {
+    //     // note: 2 ways - square and rectangular
+    //     // square: easy - swap above diagonal with below
+    //     // rect: more difficult - ...
+    //     self.chunk_size = self.data.len() / self.chunk_size;
+    // }
 }
 
-impl<'a, T: FmtDebug + Default + Clone> MatrixLike<'a> for MatrixV<'a, T> {
+impl<'a, T: FmtDebug + Default + Copy + Clone> MatrixLike<'a>
+    for MatrixV<'a, T>
+{
     type Item = T;
 
     fn len(&self) -> usize {
@@ -91,7 +101,22 @@ impl<'a, T: FmtDebug + Default + Clone> MatrixLike<'a> for MatrixV<'a, T> {
             input.len(),
             self.chunk_size
         );
-        self.data = input.to_vec();
+        // for now only 2 cases:
+        // - the matrix was freshly created,
+        // - or we want to replace its existing content
+        // ! extending matrices with .fill() is not supported
+        if self.data.is_empty() {
+            self.data.extend_from_slice(input);
+        } else {
+            self.data.copy_from_slice(input);
+        }
+    }
+
+    fn fill_iter<I>(&mut self, input_iter: I)
+    where
+        I: Iterator<Item = T>,
+    {
+        input_iter.for_each(|v| self.data.push(v))
     }
 
     fn fill_square(&mut self, value: Self::Item) {
@@ -111,6 +136,18 @@ impl<'a, T: FmtDebug + Default + Clone> MatrixLike<'a> for MatrixV<'a, T> {
 
     fn view(&'a self) -> &[Self::Item] {
         &self.data[..]
+    }
+
+    fn view_mut(&'a mut self) -> &mut [Self::Item] {
+        &mut self.data[..]
+    }
+
+    fn iter(&self) -> Iter<Self::Item> {
+        self.data.iter()
+    }
+
+    fn iter_mut(&mut self) -> IterMut<Self::Item> {
+        self.data.iter_mut()
     }
 
     fn iter_rows(&self) -> ChunksExact<Self::Item> {
@@ -180,16 +217,6 @@ impl<'a, T: FmtDebug + FmtDisplay + Default + Copy, const S: usize>
     }
 
     #[allow(dead_code)]
-    pub(crate) fn iter(&self) -> impl Iterator<Item = &T> {
-        self.data.iter()
-    }
-
-    #[allow(dead_code)]
-    pub(crate) fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
-        self.data.iter_mut()
-    }
-
-    #[allow(dead_code)]
     pub(crate) fn debug_print(&self) {
         for row in self.iter_rows() {
             // eprintln!("{:?}", row);
@@ -214,8 +241,15 @@ impl<'a, T: FmtDebug + Default + Copy + Clone, const S: usize> MatrixLike<'a>
     }
 
     fn fill(&mut self, input: &[Self::Item]) {
-        input.iter().enumerate().for_each(|(i, v)| {
-            self.data[i] = *v;
+        self.data.copy_from_slice(input)
+    }
+
+    fn fill_iter<I>(&mut self, input_iter: I)
+    where
+        I: Iterator<Item = T>,
+    {
+        input_iter.enumerate().for_each(|(i, v)| {
+            self.data[i] = v;
         });
     }
 
@@ -239,13 +273,17 @@ impl<'a, T: FmtDebug + Default + Copy + Clone, const S: usize> MatrixLike<'a>
         &self.data[..]
     }
 
-    // pub(crate) fn iter(&self) -> impl Iterator<Item = &T> {
-    //     self.data.iter()
-    // }
+    fn view_mut(&'a mut self) -> &mut [Self::Item] {
+        &mut self.data[..]
+    }
 
-    // pub(crate) fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
-    //     self.data.iter_mut()
-    // }
+    fn iter(&self) -> Iter<Self::Item> {
+        self.data.iter()
+    }
+
+    fn iter_mut(&mut self) -> IterMut<Self::Item> {
+        self.data.iter_mut()
+    }
 
     fn iter_rows(&self) -> ChunksExact<Self::Item> {
         self.data.chunks_exact(self.chunk_size)
