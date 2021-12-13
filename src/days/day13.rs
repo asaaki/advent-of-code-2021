@@ -62,9 +62,9 @@ fn fold_it(first_part: bool, paper: &mut Paper, folds: &[Fold]) {
                 fold_up(paper, f);
             }
             Fold::Left(f) => {
-                paper.transpose();
+                paper.transpose_inplace();
                 fold_up(paper, f);
-                paper.transpose();
+                paper.transpose_inplace();
             }
         }
     }

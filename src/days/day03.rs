@@ -36,7 +36,7 @@ fn input2matrix(input: StrInputRef, transposed: bool) -> MI {
     let mut m = MatrixV::new(input[0].len());
     m.fill(&bitstream(input));
     if transposed {
-        m.transpose();
+        m.transpose_inplace();
     }
     m
 }

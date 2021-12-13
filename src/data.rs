@@ -35,6 +35,8 @@ pub(crate) trait MatrixLike<'a> {
 
     fn transpose(&mut self);
 
+    fn transpose_inplace(&mut self);
+
     fn transpose_into<M: MatrixLike<'a>>(&self, target: &mut M)
     where
         M: MatrixLike<'a>,
@@ -75,14 +77,6 @@ impl<'a, T: FmtDebug + FmtDisplay + Default + Copy> MatrixV<'a, T> {
             );
         }
     }
-
-    // #[allow(dead_code)]
-    // fn transpose_faster(&mut self) {
-    //     // note: 2 ways - square and rectangular
-    //     // square: easy - swap above diagonal with below
-    //     // rect: more difficult - ...
-    //     self.chunk_size = self.data.len() / self.chunk_size;
-    // }
 }
 
 impl<'a, T: FmtDebug + Default + Copy + Clone> MatrixLike<'a>
@@ -163,6 +157,21 @@ impl<'a, T: FmtDebug + Default + Copy + Clone> MatrixLike<'a>
             self.iter_cols().flatten().map(ToOwned::to_owned).collect();
         self.chunk_size = transposed.len() / self.chunk_size;
         self.fill(&transposed[..]);
+    }
+
+    fn transpose_inplace(&mut self) {
+        let col_size = self.data.len() / self.chunk_size;
+        if col_size == self.chunk_size {
+            for n in 0..(col_size-1) {
+                for m in (n+1)..col_size {
+                    self.data.swap(n*col_size + m, m * col_size + n)
+                }
+            }
+        } else {
+            let mut scratch: Vec<T> = vec![T::default(); self.chunk_size.max(col_size)];
+            transpose::transpose_inplace(&mut self.data, &mut scratch, self.chunk_size, col_size);
+            self.chunk_size = col_size;
+        }
     }
 
     fn transpose_into<M>(&self, target: &mut M)
@@ -298,6 +307,21 @@ impl<'a, T: FmtDebug + Default + Copy + Clone, const S: usize> MatrixLike<'a>
             self.iter_cols().flatten().map(ToOwned::to_owned).collect();
         self.chunk_size = transposed.len() / self.chunk_size;
         self.fill(&transposed[..]);
+    }
+
+    fn transpose_inplace(&mut self) {
+        let col_size = self.data.len() / self.chunk_size;
+        if col_size == self.chunk_size {
+            for n in 0..(col_size-1) {
+                for m in (n+1)..col_size {
+                    self.data.swap(n*col_size + m, m * col_size + n)
+                }
+            }
+        } else {
+            let mut scratch: Vec<T> = vec![T::default(); self.chunk_size.max(col_size)];
+            transpose::transpose_inplace(&mut self.data, &mut scratch, self.chunk_size, col_size);
+            self.chunk_size = col_size;
+        }
     }
 
     fn transpose_into<M>(&self, target: &mut M)
@@ -445,9 +469,11 @@ mod test {
         assert_eq!(mv.len(), sample.len());
         assert_eq!(mv2.len(), sample.len());
 
-        eprintln!("mv  before transpose {:?}", &mv);
+        eprintln!("mv  before transpose  {:?}", &mv);
         mv.transpose();
-        eprintln!("mv  after transpose  {:?}", &mv);
+        eprintln!("mv  after transpose   {:?}", &mv);
+        mv.transpose_inplace();
+        eprintln!("mv  after transpose_F {:?}", &mv);
 
         eprintln!("mv2 before transpose {:?}", &mv2);
         mv2.transpose();
@@ -468,6 +494,29 @@ mod test {
         // eprintln!("mv->ma2 {:?}", &ma2);
         // ma.transpose_into(&mut mv);
         // eprintln!("ma->mv  {:?}", &mv);
+    }
+
+    #[test]
+    fn transpose_square() {
+        let sample = vec![1usize, 2, 3, 4, 5, 6, 7, 8, 9];
+        let chunk_size = 3usize;
+
+        let mut mv: MatrixV<usize> = MatrixV::new(chunk_size);
+        mv.fill(&sample[..]);
+
+        eprintln!("[fast] before transpose {:?}", &mv);
+        mv.transpose_inplace();
+        eprintln!("[fast] after transpose1 {:?}", &mv);
+        mv.transpose_inplace();
+        eprintln!("[fast] after transpose2 {:?}", &mv);
+
+        mv.fill(&sample[..]);
+
+        eprintln!("[slow] before transpose {:?}", &mv);
+        mv.transpose();
+        eprintln!("[slow] after transpose1 {:?}", &mv);
+        mv.transpose();
+        eprintln!("[slow] after transpose2 {:?}", &mv);
     }
 
     #[test]
