@@ -78,7 +78,7 @@ fn compute(input: StrInputRef, first_part: bool) -> usize {
                 let c = if dot > &0 { '█' } else { ' ' };
                 eprint!("{}", c);
             }
-            eprintln!("");
+            eprintln!();
         }
     }
 
