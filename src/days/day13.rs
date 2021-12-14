@@ -8,33 +8,50 @@ enum Fold {
     Left(usize),
 }
 
-type Paper<'a> = MatrixV<'a, usize>;
+type Dot = (usize, usize);
+type Dots = Vec<Dot>;
+
+struct Transparent {
+    width: usize,
+    height: usize,
+    dots: Dots,
+}
+
+impl Transparent {
+    fn new(width: usize, height: usize, dots: Dots) -> Self {
+        Self {
+            width,
+            height,
+            dots,
+        }
+    }
+}
 
 fn compute(input: StrInputRef, first_part: bool) -> usize {
     let (dots, folds) = input.split_at(find_separator(input));
-    let dots = make_dots(dots);
     let folds = make_folds(folds);
-    let (w, h) = calculate_initial_size(&folds);
+    let (width, height) = calculate_initial_size(&folds);
 
-    let mut paper = Paper::new(w);
-    paper.fill_iter(std::iter::repeat(0).take(w * h));
-    for (x, y) in dots {
-        paper.insert(x, y, 1);
-    }
-
+    let mut paper = Transparent::new(width, height, make_dots(dots));
     fold_it(first_part, &mut paper, &folds);
 
     if !first_part {
-        for line in paper.iter_rows() {
-            for dot in line {
-                let c = if dot > &0 { '█' } else { ' ' };
+        for y in 0..=paper.height {
+            for x in 0..=paper.width {
+                let c = if paper.dots.contains(&(x, y)) {
+                    '█'
+                } else {
+                    ' '
+                };
                 eprint!("{}", c);
             }
             eprintln!();
         }
     }
 
-    paper.view().iter().sum()
+    paper.dots.sort_unstable();
+    paper.dots.dedup();
+    paper.dots.iter().count()
 }
 
 #[inline]
@@ -54,17 +71,26 @@ fn find_separator(input: StrInputRef) -> usize {
 }
 
 #[inline]
-fn fold_it(first_part: bool, paper: &mut Paper, folds: &[Fold]) {
+fn fold_it(first_part: bool, paper: &mut Transparent, folds: &[Fold]) {
     let folds = if first_part { &folds[..1] } else { folds };
     for fold in folds {
+        let dots_iter = paper.dots.iter_mut();
         match fold {
             Fold::Up(f) => {
-                fold_up(paper, f);
+                dots_iter.filter(|(_, y)| y > f).for_each(
+                    |(_, y)| {
+                        *y = paper.height - *y - 1;
+                    },
+                );
+                paper.height = *f;
             }
             Fold::Left(f) => {
-                paper.transpose_inplace();
-                fold_up(paper, f);
-                paper.transpose_inplace();
+                dots_iter.filter(|(x, _)| x > f).for_each(
+                    |(x, _)| {
+                        *x = paper.width - *x - 1;
+                    },
+                );
+                paper.width = *f;
             }
         }
     }
@@ -109,21 +135,4 @@ fn make_dots(dots: StrInputRef) -> Vec<(usize, usize)> {
         })
         .collect();
     dots
-}
-
-#[inline]
-fn fold_up(paper: &mut MatrixV<usize>, f: &usize) {
-    let data = paper.view();
-    let cs = paper.chunk_size();
-    let (up, down) = (&data[..(f * cs)], &data[((f + 1) * cs)..]);
-    let merged: Vec<usize> = up
-        .chunks_exact(cs)
-        .zip(down.chunks_exact(cs).rev())
-        .flat_map(|(l, r)| {
-            l.iter().zip(r.iter()).map(|(a, b)| a.max(b).to_owned())
-        })
-        .collect();
-    let mut folded = Paper::new(cs);
-    folded.fill(&merged);
-    *paper = folded;
 }
