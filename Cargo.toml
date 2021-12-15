@@ -25,6 +25,7 @@ beef = "0.5.1"
 hash32 = "0.2.1"
 kommand = "0.6.0"
 nameless = "0.6.0"
+petgraph = "0.6.0"
 rust-embed = { version = "6.3.0", features = ["compression"] }
 shadow-rs = "0.8.1"
 transpose = "0.2.1"

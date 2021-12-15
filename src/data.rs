@@ -20,6 +20,8 @@ pub(crate) trait MatrixLike<'a> {
 
     fn get(&'a self, x: usize, y: usize) -> Option<&'a Self::Item>;
 
+    fn get_mut(&mut self, x: usize, y: usize) -> Option<&mut Self::Item>;
+
     fn view(&'a self) -> &[Self::Item];
 
     fn view_mut(&'a mut self) -> &mut [Self::Item];
@@ -50,7 +52,7 @@ pub(crate) trait MatrixLike<'a> {
 // ==================== Matrix with Vec backend ================================
 
 #[derive(Debug, Default, Clone)]
-pub(crate) struct MatrixV<'a, T: Default> {
+pub(crate) struct MatrixV<'a, T: 'a + Default> {
     chunk_size: usize,
     data: Vec<T>,
     _marker: PhantomData<&'a T>,
@@ -67,9 +69,8 @@ impl<'a, T: FmtDebug + FmtDisplay + Default + Copy> MatrixV<'a, T> {
     #[allow(dead_code)]
     pub(crate) fn debug_print(&self) {
         for row in self.iter_rows() {
-            // eprintln!("{:?}", row);
             eprintln!(
-                "{}",
+                "{:?}",
                 row.iter()
                     .map(ToString::to_string)
                     .collect::<Vec<_>>()
@@ -125,7 +126,12 @@ impl<'a, T: FmtDebug + Default + Copy + Clone> MatrixLike<'a>
 
     fn get(&'a self, x: usize, y: usize) -> Option<&'a Self::Item> {
         let pos = x + y * self.chunk_size;
-        (&self.data).get(pos)
+        self.data.get(pos)
+    }
+
+    fn get_mut(&mut self, x: usize, y: usize) -> Option<&mut Self::Item> {
+        let pos = x + y * self.chunk_size;
+        self.data.get_mut(pos)
     }
 
     fn view(&'a self) -> &[Self::Item] {
@@ -275,7 +281,12 @@ impl<'a, T: FmtDebug + Default + Copy + Clone, const S: usize> MatrixLike<'a>
 
     fn get(&'a self, x: usize, y: usize) -> Option<&'a Self::Item> {
         let pos = x + y * self.chunk_size;
-        (&self.data).get(pos)
+        self.data.get(pos)
+    }
+
+    fn get_mut(&mut self, x: usize, y: usize) -> Option<&mut Self::Item> {
+        let pos = x + y * self.chunk_size;
+        self.data.get_mut(pos)
     }
 
     fn view(&'a self) -> &[Self::Item] {
