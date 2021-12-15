@@ -20,7 +20,11 @@ aoc_macros::day_impl_common!();
 
 fn compute(input: StrInputRef, first_part: bool) -> usize {
     let factor = input.len();
-    let factor = if first_part { factor } else { factor * TILE_FACTOR };
+    let factor = if first_part {
+        factor
+    } else {
+        factor * TILE_FACTOR
+    };
 
     let map = init_map(first_part, input);
     let (start, end) = (0, (map.len() - 1));
@@ -29,10 +33,10 @@ fn compute(input: StrInputRef, first_part: bool) -> usize {
     for a in 0..(factor - 1) {
         let b = a + 1;
         for c in 0..factor {
-            let w1 = map.get(b, c).unwrap();
-            let w2 = map.get(c, b).unwrap();
-            let e1 = ((a + factor * c), (b + factor * c), *w1);
-            let e2 = ((c + factor * a), (c + factor * b), *w2);
+            let w1 = map.get(b, c).unwrap(); // left
+            let w2 = map.get(c, b).unwrap(); // bottom
+            let e1 = ((a + (factor * c)), (b + (factor * c)), *w1);
+            let e2 = ((c + (factor * a)), (c + (factor * b)), *w2);
             edges.push(e1);
             edges.push(e2);
         }
@@ -46,7 +50,6 @@ fn compute(input: StrInputRef, first_part: bool) -> usize {
 
 fn init_map(first_part: bool, input: StrInputRef) -> WeightMap {
     let len = input.len();
-    dbg!(len);
     let tiles = if first_part { 1 } else { TILE_FACTOR };
 
     let chunk_len = tiles * len;
