@@ -45,8 +45,8 @@ fn bitstream(input: StrInputRef) -> Row {
     input
         .iter()
         .flat_map(|line| {
-            line.chars()
-                .map(|c| c.to_digit(2).expect("bin digit") as Item)
+            line.bytes()
+                .map(|c| c - b'0')
         })
         .collect()
 }

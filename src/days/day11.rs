@@ -48,8 +48,8 @@ fn compute(input: StrInputRef, first_part: bool) -> usize {
 fn init_map(input: StrInputRef) -> Map {
     let mut map = Map::new(DIM);
     for (y, line) in input.iter().enumerate() {
-        for (x, c) in line.char_indices() {
-            map.insert(x, y, c.to_digit(10).unwrap() as Digit);
+        for (x, c) in line.bytes().enumerate() {
+            map.insert(x, y, c - b'0');
         }
     }
     map

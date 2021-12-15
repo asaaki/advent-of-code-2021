@@ -158,19 +158,6 @@ fn part_2_(input: StrInputRef) -> usize {
         }
     }
 
-    // map printer for debugging
-    // eprintln!("");
-    // for line in map.iter() {
-    //     for c in line {
-    //         match c {
-    //             Cell::B(_) => eprint!("*"),
-    //             Cell::F(v) => eprint!("{}", v % 10),
-    //             Cell::P(_) => eprint!("!"),
-    //         }
-    //     }
-    //     eprintln!("");
-    // }
-
     let areas: Vec<&usize> = map
         .iter()
         .flat_map(|line| {
@@ -194,8 +181,8 @@ fn parse(input: StrInputRef) -> Map {
     input
         .iter()
         .map(|line| {
-            line.chars()
-                .map(|c| c.to_digit(10).unwrap() as Digit)
+            line.bytes()
+                .map(|c| (c - b'0'))
                 .collect()
         })
         .collect()

@@ -3,6 +3,8 @@
 // used https://pastebin.com/AN2FihWe to get the correct answer;
 // mine: 2935, theirs/correct: 2925, diff: -10
 
+// alternative to try: https://github.com/samueltardieu/pathfinding
+
 use petgraph::{
     algo::dijkstra,
     graph::{DiGraph, NodeIndex},
@@ -58,8 +60,8 @@ fn init_map(first_part: bool, input: StrInputRef) -> WeightMap {
 
     for (y, line) in input.iter().enumerate() {
         for ty in 0..tiles {
-            for (x, c) in line.char_indices() {
-                let lv = c.to_digit(10).unwrap() as usize;
+            for (x, c) in line.bytes().enumerate() {
+                let lv = (c - b'0') as usize;
                 for tx in 0..tiles {
                     let v = lv + tx + ty;
                     let v = if v > 9 { v - 9 } else { v };
