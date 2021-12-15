@@ -63,8 +63,7 @@ fn init_map(first_part: bool, input: StrInputRef) -> WeightMap {
             for (x, c) in line.bytes().enumerate() {
                 let lv = (c - b'0') as usize;
                 for tx in 0..tiles {
-                    let v = lv + tx + ty;
-                    let v = if v > 9 { v - 9 } else { v };
+                    let v = (lv + tx + ty - 1) % 9 + 1;
                     map.insert(x + (tx * len), y + (ty * len), v);
                 }
             }
