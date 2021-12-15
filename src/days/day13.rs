@@ -51,7 +51,7 @@ fn compute(input: StrInputRef, first_part: bool) -> usize {
 
     paper.dots.sort_unstable();
     paper.dots.dedup();
-    paper.dots.iter().count()
+    paper.dots.len()
 }
 
 #[inline]
